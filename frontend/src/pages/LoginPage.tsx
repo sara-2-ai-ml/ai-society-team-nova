@@ -72,10 +72,6 @@ export function LoginPage() {
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold-500 text-brand-900">
             <Landmark size={22} aria-hidden />
           </span>
-          <span className="leading-tight">
-            <span className="block text-lg font-semibold">{t('brand.title')}</span>
-            <span className="block text-xs text-brand-200">{t('brand.subtitle')}</span>
-          </span>
         </div>
 
         <div className="mt-auto">
