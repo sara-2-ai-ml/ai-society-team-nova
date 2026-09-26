@@ -19,8 +19,10 @@ from backend.services.insight_service import get_insights
 from backend.services.kpi_service import calculate_kpis
 from backend.services.memory_service import (
     DEFAULT_MEMORY_DB_PATH,
+    ensure_conversation,
     get_conversation_history,
     save_message,
+    touch_conversation,
 )
 from backend.services.overdue_service import calculate_open_overdue
 from backend.services.operations_service import (
@@ -393,6 +395,7 @@ def ask_assistant(
     max_tool_iterations: int = MAX_TOOL_ITERATIONS,
     directorate: str | None = None,
     language: str | None = None,
+    user_id: str | None = None,
 ) -> dict[str, Any]:
     """Run the grounded tool-calling loop and persist final conversation text.
 
@@ -415,6 +418,8 @@ def ask_assistant(
             )
         client = OpenAI(api_key=api_key)
 
+    if user_id:
+        ensure_conversation(session_id, user_id, question, db_path=memory_db_path)
     history = get_conversation_history(
         session_id, limit=10, db_path=memory_db_path
     )
@@ -465,6 +470,8 @@ def ask_assistant(
                 raise AgentLoopError("The model returned no final answer.")
             save_message(session_id, "user", question, db_path=memory_db_path)
             save_message(session_id, "assistant", answer, db_path=memory_db_path)
+            if user_id:
+                touch_conversation(session_id, db_path=memory_db_path)
             return {
                 "session_id": session_id,
                 "answer": answer,

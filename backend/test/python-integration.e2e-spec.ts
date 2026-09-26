@@ -107,7 +107,15 @@ describe('With the Python service (e2e)', () => {
     asked.length = 0;
     const res = await http().post('/api/assistant/ask').set(as('drejtoria.publike')).send({ question: 'Sa kërkesa kemi?' }).expect(200);
     expect(res.body).toMatchObject({ answer: 'AI answer (DSHP)', source: 'ai', tools: ['get_kpis'] });
-    expect(asked).toEqual([{ question: 'Sa kërkesa kemi?', session_id: 'nova-drejtoria.publike', directorate: 'DSHP', language: 'sq' }]);
+    expect(asked).toEqual([
+      expect.objectContaining({
+        question: 'Sa kërkesa kemi?',
+        session_id: expect.stringMatching(/^conversation-drejtoria\.publike-/),
+        user_id: 'drejtoria.publike',
+        directorate: 'DSHP',
+        language: 'sq',
+      }),
+    ]);
   });
 
   it('answers offline for units the dataset does not cover, without calling the AI', async () => {

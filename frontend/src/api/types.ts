@@ -91,6 +91,18 @@ export interface AssistantAnswer {
   suggestions: string[];
   source: 'ai' | 'offline';
   tools?: string[];
+  conversationId?: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  messages: { role: 'user' | 'assistant'; content: string; created_at: string }[];
 }
 
 export interface UnitSuggestion {
@@ -121,6 +133,7 @@ export interface Report {
     returned: number;
     overdue: number;
     onTimeRate: number | null;
+    onTimeDone: number;
     previousOnTimeRate: number | null;
     avgDaysToComplete: number | null;
   };

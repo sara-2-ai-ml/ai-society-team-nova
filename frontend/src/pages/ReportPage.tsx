@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, CheckCircle2, FileBarChart, Printer, RefreshCw } from 'lucide-react';
+import { AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, CheckCircle2, FileBarChart, Info, Printer, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { query } from '../api/client';
 import type { Report } from '../api/types';
@@ -33,6 +33,24 @@ function Metric({ label, value, delta }: { label: string; value: ReactNode; delt
       <div className="text-xs font-medium tracking-wide text-slate-500 uppercase">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{value}</div>
       {delta && <div className="mt-1">{delta}</div>}
+    </div>
+  );
+}
+
+function ComparisonBar({ label, value, max, tone }: { label: string; value: number; max: number; tone: 'current' | 'previous' }) {
+  const width = max === 0 ? 0 : Math.max(4, Math.round((value / max) * 100));
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-3 text-xs">
+        <span className="text-slate-600">{label}</span>
+        <strong className="tabular-nums text-slate-900">{value}</strong>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={cx('h-full rounded-full', tone === 'current' ? 'bg-brand-600' : 'bg-slate-300')}
+          style={{ width: `${width}%` }}
+        />
+      </div>
     </div>
   );
 }
@@ -72,6 +90,9 @@ export function ReportPage() {
   const report = useApi<Report>(path);
   const r = report.data;
   const m = r?.metrics;
+  const regenerate = () => {
+    if (window.confirm(t('rp.regenerateConfirm'))) setRefreshCount((n) => n + 1);
+  };
 
   return (
     <>
@@ -81,7 +102,7 @@ export function ReportPage() {
           subtitle={t('rp.subtitle')}
           actions={
             <>
-              <Button variant="secondary" icon={RefreshCw} loading={report.loading && !!r} onClick={() => setRefreshCount((n) => n + 1)}>
+              <Button variant="secondary" icon={RefreshCw} loading={report.loading && !!r} onClick={regenerate}>
                 {t('rp.regenerate')}
               </Button>
               <Button variant="secondary" icon={Printer} onClick={() => window.print()} disabled={!r}>
@@ -125,6 +146,14 @@ export function ReportPage() {
           </header>
 
           <div className="space-y-8 px-8 py-6">
+            <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />
+              <div>
+                <p className="font-semibold">{t('rp.draftTitle')}</p>
+                <p className="mt-0.5 text-xs leading-5 text-amber-800">{t('rp.draftText')}</p>
+              </div>
+            </div>
+
             <section>
               <p className="text-lg leading-snug font-semibold text-slate-900">{r.narrative.headline}</p>
               <p className="mt-2 text-[15px] leading-relaxed text-slate-700">{r.narrative.summary}</p>
@@ -137,15 +166,56 @@ export function ReportPage() {
                 <Metric
                   label={t('rp.onTime')}
                   value={m.onTimeRate === null ? '–' : `${m.onTimeRate}%`}
-                  delta={<Delta now={m.onTimeRate} before={m.previousOnTimeRate} suffix="%" />}
+                  delta={
+                    <div className="space-y-0.5">
+                      <div className="text-xs text-slate-500">{t('rp.onTimeBase', { onTime: m.onTimeDone, done: m.done })}</div>
+                      <Delta now={m.onTimeRate} before={m.previousOnTimeRate} suffix="%" />
+                    </div>
+                  }
                 />
                 <Metric
                   label={t('rp.lateToday')}
                   value={<span className={m.overdue ? 'text-red-700' : undefined}>{m.overdue}</span>}
-                  delta={<span className="text-xs text-slate-500">{m.avgDaysToComplete === null ? '' : t('rp.solvedIn', { n: m.avgDaysToComplete })}</span>}
+                  delta={
+                    <div className="space-y-0.5 text-xs text-slate-500">
+                      <div>{t('rp.backlogHint')}</div>
+                      {m.avgDaysToComplete !== null && <div>{t('rp.solvedIn', { n: m.avgDaysToComplete })}</div>}
+                    </div>
+                  }
                 />
               </div>
             )}
+
+            {m && (
+              <section className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <BarChart3 size={17} className="text-brand-600" aria-hidden /> {t('rp.comparisonTitle')}
+                </h3>
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div className="space-y-3 rounded-lg bg-white p-3 ring-1 ring-slate-200">
+                    <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">{t('rp.requestVolume')}</p>
+                    <ComparisonBar label={t('rp.currentPeriod')} value={m.total} max={Math.max(m.total, m.previousTotal)} tone="current" />
+                    <ComparisonBar label={t('rp.previousPeriod')} value={m.previousTotal} max={Math.max(m.total, m.previousTotal)} tone="previous" />
+                  </div>
+                  <div className="space-y-3 rounded-lg bg-white p-3 ring-1 ring-slate-200">
+                    <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">{t('rp.onTime')}</p>
+                    <ComparisonBar label={t('rp.currentPeriod')} value={m.onTimeRate ?? 0} max={100} tone="current" />
+                    <ComparisonBar label={t('rp.previousPeriod')} value={m.previousOnTimeRate ?? 0} max={100} tone="previous" />
+                  </div>
+                </div>
+              </section>
+            )}
+
+            <details className="rounded-lg border border-sky-200 bg-sky-50/60 px-4 py-3 text-sm text-slate-700">
+              <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-slate-900">
+                <Info size={16} className="text-sky-700" aria-hidden /> {t('rp.evidenceTitle')}
+              </summary>
+              <ul className="mt-3 list-disc space-y-1.5 pl-6 text-xs leading-5 text-slate-600">
+                <li>{t('rp.evidenceNumbers')}</li>
+                <li>{r.generatedBy === 'ai' ? t('rp.evidenceAi') : t('rp.evidenceAuto')}</li>
+                <li>{t('rp.evidenceDecision')}</li>
+              </ul>
+            </details>
 
             <div className="grid gap-6 md:grid-cols-2">
               <Points title={t('rp.good')} items={r.narrative.highlights} tone="good" />
