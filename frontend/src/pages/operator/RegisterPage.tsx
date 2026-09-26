@@ -58,7 +58,7 @@ function UnitChoice({
                   className="mt-0.5 accent-brand-700"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block font-medium text-slate-900">{u.short}</span>
+                  <span className="block font-medium text-slate-800">{u.short}</span>
                   <span className="text-xs text-slate-500">{t('unit.sla', { n: u.slaDays })}</span>
                 </span>
                 {suggested === u.id && (
@@ -245,7 +245,7 @@ export function RegisterPage() {
                 {returned.map((r) => (
                   <li key={r.id}>
                     <button onClick={() => setOpen(r)} className="w-full px-5 py-3 text-left hover:bg-slate-50">
-                      <span className="block text-sm font-medium text-slate-900">{r.protocolNo}</span>
+                      <span className="block text-sm font-medium text-slate-800">{r.protocolNo}</span>
                       <span className="block truncate text-xs text-slate-500">{r.subject}</span>
                       <span className="mt-1 block text-xs text-amber-700">{r.history.at(-1)?.note}</span>
                     </button>
@@ -264,7 +264,7 @@ export function RegisterPage() {
                   <li key={r.id}>
                     <button onClick={() => setOpen(r)} className="flex w-full items-start justify-between gap-3 px-5 py-3 text-left hover:bg-slate-50">
                       <span className="min-w-0">
-                        <span className="block text-sm font-medium text-slate-900">{r.protocolNo}</span>
+                        <span className="block text-sm font-medium text-slate-800">{r.protocolNo}</span>
                         <span className="block truncate text-xs text-slate-500">
                           {r.subject} · {units.find((u) => u.id === r.unitId)?.short}
                         </span>

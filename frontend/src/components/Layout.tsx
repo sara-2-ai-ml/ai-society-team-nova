@@ -16,11 +16,11 @@ export interface NavItem {
 function Brand() {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-700 text-white" aria-hidden>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white" aria-hidden>
         <Landmark size={20} />
       </span>
       <div className="leading-tight">
-        <div className="text-[15px] font-bold text-slate-900">{t('brand.title')}</div>
+        <div className="text-[15px] font-bold text-slate-800">{t('brand.title')}</div>
         <div className="text-xs text-slate-500">{t('brand.subtitle')}</div>
       </div>
     </div>
@@ -39,17 +39,17 @@ function Nav({ items, current, onGo }: { items: NavItem[]; current: string; onGo
             onClick={onGo}
             aria-current={active ? 'page' : undefined}
             className={cx(
-              'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition',
-              active ? 'bg-brand-700 font-semibold text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition',
+              active ? 'bg-brand-50 font-semibold text-brand-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800',
             )}
           >
-            <item.icon size={18} strokeWidth={1.9} aria-hidden className={active ? 'text-white' : 'text-slate-400'} />
+            <item.icon size={18} strokeWidth={1.9} aria-hidden className={active ? 'text-brand-600' : 'text-slate-400'} />
             <span className="flex-1">{item.label}</span>
             {!!item.badge && (
               <span
                 className={cx(
                   'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
-                  active ? 'bg-white text-brand-800' : 'bg-slate-200 text-slate-700',
+                  active ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600',
                 )}
               >
                 {item.badge}
@@ -81,11 +81,11 @@ function UserChip({ user }: { user: User }) {
   const { name, role, initials } = useIdentity(user);
   return (
     <div className="flex min-w-0 items-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-700 text-sm font-semibold text-white" aria-hidden>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700" aria-hidden>
         {initials}
       </span>
       <div className="min-w-0 leading-tight">
-        <p className="truncate text-sm font-semibold text-slate-900">{name}</p>
+        <p className="truncate text-sm font-semibold text-slate-800">{name}</p>
         <p className="text-xs text-slate-500">{role}</p>
       </div>
     </div>
@@ -97,7 +97,7 @@ function SidebarFooter({ onLogout }: { onLogout: () => void }) {
     <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-4">
       <button
         onClick={onLogout}
-        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-800"
       >
         <LogOut size={15} aria-hidden /> {t('user.logout')}
       </button>

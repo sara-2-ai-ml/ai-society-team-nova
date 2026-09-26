@@ -76,8 +76,8 @@ export function LanguageSwitch({ className }: { className?: string }) {
           onClick={() => setLang(l)}
           className={
             lang === l
-              ? 'rounded-md bg-white px-2.5 py-1 font-semibold text-slate-900 shadow-sm'
-              : 'rounded-md px-2.5 py-1 font-medium text-slate-500 hover:text-slate-900'
+              ? 'rounded-md bg-white px-2.5 py-1 font-semibold text-slate-800 shadow-sm'
+              : 'rounded-md px-2.5 py-1 font-medium text-slate-500 hover:text-slate-800'
           }
         >
           {l.toUpperCase()}

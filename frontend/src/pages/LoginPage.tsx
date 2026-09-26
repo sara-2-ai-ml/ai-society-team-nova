@@ -61,7 +61,7 @@ export function LoginPage() {
       <section className="relative flex items-center justify-center px-4 py-12 sm:px-8">
         <LanguageSwitch className="absolute top-4 right-4" />
         <div className="w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-slate-900">{t('login.title')}</h2>
+          <h2 className="text-2xl font-semibold text-slate-800">{t('login.title')}</h2>
           <p className="mt-1 text-sm text-slate-500">{t('login.subtitle')}</p>
 
           <form onSubmit={submit} className="mt-8 space-y-4">

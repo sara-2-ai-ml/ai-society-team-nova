@@ -26,7 +26,7 @@ function StepDot({ n, label, active, done }: { n: number; label: string; active:
       >
         {done ? <CheckCircle2 size={16} aria-hidden /> : n}
       </span>
-      <span className={active ? 'font-medium text-slate-900' : 'text-slate-500'}>{label}</span>
+      <span className={active ? 'font-medium text-slate-800' : 'text-slate-500'}>{label}</span>
     </li>
   );
 }
@@ -162,10 +162,10 @@ export function ImportPage() {
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <div>
               <p className="text-sm text-slate-500">{file?.name}</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">
+              <p className="mt-1 text-lg font-semibold text-slate-800">
                 {t('imp.ready', { n: result.accepted.length })}
                 {result.rejected.length > 0 && (
-                  <span className="text-red-700"> · {t('imp.withErrors', { n: result.rejected.length })}</span>
+                  <span className="text-rose-700"> · {t('imp.withErrors', { n: result.rejected.length })}</span>
                 )}
               </p>
             </div>
@@ -182,7 +182,7 @@ export function ImportPage() {
           {result.rejected.length > 0 && (
             <Card
               title={
-                <span className="flex items-center gap-2 text-red-800">
+                <span className="flex items-center gap-2 text-rose-800">
                   <AlertTriangle size={16} aria-hidden /> {t('imp.rejectedTitle')}
                 </span>
               }
@@ -201,8 +201,8 @@ export function ImportPage() {
                   {result.rejected.map((r) => (
                     <tr key={r.row}>
                       <td className="px-5 py-2.5 tabular-nums text-slate-500">{r.row}</td>
-                      <td className="px-3 py-2.5 font-medium text-slate-900">{r.protocolNo || '–'}</td>
-                      <td className="px-5 py-2.5 text-red-700">{r.errors.join(' · ')}</td>
+                      <td className="px-3 py-2.5 font-medium text-slate-800">{r.protocolNo || '–'}</td>
+                      <td className="px-5 py-2.5 text-rose-700">{r.errors.join(' · ')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -227,7 +227,7 @@ export function ImportPage() {
                     {result.accepted.map((r) => (
                       <tr key={r.row}>
                         <td className="px-5 py-2.5 tabular-nums text-slate-500">{r.row}</td>
-                        <td className="px-3 py-2.5 font-medium text-slate-900">{r.protocolNo}</td>
+                        <td className="px-3 py-2.5 font-medium text-slate-800">{r.protocolNo}</td>
                         <td className="px-3 py-2.5 tabular-nums">{formatDay(r.date)}</td>
                         <td className="px-3 py-2.5">{r.subject}</td>
                         <td className="px-5 py-2.5">{short(r.unitId)}</td>
@@ -247,7 +247,7 @@ export function ImportPage() {
             <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
               <CheckCircle2 size={28} aria-hidden />
             </span>
-            <p className="text-lg font-semibold text-slate-900">
+            <p className="text-lg font-semibold text-slate-800">
               {t('imp.sentTitle', { n: result.accepted.length })}
             </p>
             <p className="mt-1 text-sm text-slate-500">{t('imp.sentText')}</p>

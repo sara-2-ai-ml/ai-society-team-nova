@@ -35,11 +35,11 @@ export function WorkflowSteps({ counts, onSelect }: { counts: StatusCounts; onSe
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-700 text-[11px] text-white">{i + 1}</span>
                   {s.who}
                 </span>
-                <span className="mt-3 flex items-center gap-2 font-semibold text-slate-900">
+                <span className="mt-3 flex items-center gap-2 font-semibold text-slate-800">
                   <s.icon size={18} className="text-brand-600" aria-hidden />
                   {s.title}
                 </span>
-                <span className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{s.value}</span>
+                <span className="mt-1 text-2xl font-semibold tabular-nums text-slate-800">{s.value}</span>
                 <span className="text-xs text-slate-500">{s.text}</span>
               </Tag>
               {i < steps.length - 1 && (
@@ -65,7 +65,7 @@ export function WorkflowSteps({ counts, onSelect }: { counts: StatusCounts; onSe
           {t('wf.returnedText')}
         </span>
         {counts.overdue > 0 && (
-          <span className="ml-auto shrink-0 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-200">
+          <span className="ml-auto shrink-0 rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-700 ring-1 ring-rose-200">
             {t('wf.overdue', { n: counts.overdue })}
           </span>
         )}

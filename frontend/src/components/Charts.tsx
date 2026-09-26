@@ -3,8 +3,9 @@ import type { Stats } from '../api/types';
 import { t } from '../i18n';
 import { formatShort } from '../lib/dates';
 
-const BRAND = '#2f5f8f';
-const DONE = '#10b981';
+// Soft blue and green: easy on the eyes, still clearly different in lightness.
+const BRAND = '#7fa3c6';
+const DONE = '#86c9ac';
 
 /** Requests registered per week, and how many of them are already done. */
 export function WeeklyChart({ weeks }: { weeks: Stats['byWeek'] }) {
@@ -13,7 +14,7 @@ export function WeeklyChart({ weeks }: { weeks: Stats['byWeek'] }) {
     <div className="h-64" role="img" aria-label={t('chart.byWeek')}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }} barGap={2}>
-          <CartesianGrid vertical={false} stroke="#e2e8f0" />
+          <CartesianGrid vertical={false} stroke="#eef1f5" />
           <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
           <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
           <Tooltip
@@ -22,8 +23,8 @@ export function WeeklyChart({ weeks }: { weeks: Stats['byWeek'] }) {
             contentStyle={{ borderRadius: 8, borderColor: '#e2e8f0', fontSize: 13 }}
           />
           <Legend iconType="circle" wrapperStyle={{ fontSize: 13 }} />
-          <Bar dataKey="total" name={t('chart.registered')} fill={BRAND} radius={[4, 4, 0, 0]} maxBarSize={28} />
-          <Bar dataKey="done" name={t('chart.completed')} fill={DONE} radius={[4, 4, 0, 0]} maxBarSize={28} />
+          <Bar dataKey="total" name={t('chart.registered')} fill={BRAND} radius={[6, 6, 0, 0]} maxBarSize={26} />
+          <Bar dataKey="done" name={t('chart.completed')} fill={DONE} radius={[6, 6, 0, 0]} maxBarSize={26} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -41,13 +42,13 @@ export function BarList({ items, max }: { items: { label: string; value: number;
             <span className="truncate text-slate-700" title={i.label}>
               {i.label}
             </span>
-            <span className="shrink-0 font-medium tabular-nums text-slate-900">
+            <span className="shrink-0 font-medium tabular-nums text-slate-800">
               {i.value}
               {i.hint && <span className="ml-1 text-xs font-normal text-slate-500">{i.hint}</span>}
             </span>
           </div>
           <div className="h-2 rounded-full bg-slate-100">
-            <div className="h-2 rounded-full bg-brand-500" style={{ width: `${(i.value / top) * 100}%` }} />
+            <div className="h-2 rounded-full bg-brand-300" style={{ width: `${(i.value / top) * 100}%` }} />
           </div>
         </li>
       ))}

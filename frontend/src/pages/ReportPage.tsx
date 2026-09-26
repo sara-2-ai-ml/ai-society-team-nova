@@ -20,7 +20,7 @@ function Delta({ now, before, suffix = '', invert = false }: { now: number | nul
   const good = invert ? !up : up;
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className={cx('inline-flex items-center gap-0.5 text-xs font-medium', good ? 'text-emerald-700' : 'text-red-700')}>
+    <span className={cx('inline-flex items-center gap-0.5 text-xs font-medium', good ? 'text-emerald-700' : 'text-rose-700')}>
       <Icon size={14} aria-hidden />
       {t('rp.from', { v: `${before}${suffix}` })}
     </span>
@@ -31,7 +31,7 @@ function Metric({ label, value, delta }: { label: string; value: ReactNode; delt
   return (
     <div className="rounded-lg border border-slate-200 p-4">
       <div className="text-xs font-medium tracking-wide text-slate-500 uppercase">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{value}</div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums text-slate-800">{value}</div>
       {delta && <div className="mt-1">{delta}</div>}
     </div>
   );
@@ -45,7 +45,7 @@ function Points({ title, items, tone }: { title: string; items: string[]; tone: 
   }[tone];
   return (
     <section className={cx('border-l-4 pl-4', style.bar)}>
-      <h3 className="mb-2 text-sm font-semibold text-slate-900">{title}</h3>
+      <h3 className="mb-2 text-sm font-semibold text-slate-800">{title}</h3>
       <ul className="space-y-2">
         {items.map((t, i) => (
           <li key={i} className="flex gap-2 text-sm text-slate-700">
@@ -116,7 +116,7 @@ export function ReportPage() {
                 <p className="flex items-center gap-2 text-xs font-semibold tracking-wide text-brand-700 uppercase">
                   <FileBarChart size={15} aria-hidden /> {t('rp.kicker')}
                 </p>
-                <h2 className="mt-1 text-xl font-semibold text-slate-900">{r.scope.name}</h2>
+                <h2 className="mt-1 text-xl font-semibold text-slate-800">{r.scope.name}</h2>
                 <p className="mt-0.5 text-sm text-slate-600">
                   {t('rp.period')} <strong>{range(r.period)}</strong> · {t('rp.compared', { p: range(r.previousPeriod) })}
                 </p>
@@ -126,7 +126,7 @@ export function ReportPage() {
 
           <div className="space-y-8 px-8 py-6">
             <section>
-              <p className="text-lg leading-snug font-semibold text-slate-900">{r.narrative.headline}</p>
+              <p className="text-lg leading-snug font-semibold text-slate-800">{r.narrative.headline}</p>
               <p className="mt-2 text-[15px] leading-relaxed text-slate-700">{r.narrative.summary}</p>
             </section>
 
@@ -141,7 +141,7 @@ export function ReportPage() {
                 />
                 <Metric
                   label={t('rp.lateToday')}
-                  value={<span className={m.overdue ? 'text-red-700' : undefined}>{m.overdue}</span>}
+                  value={<span className={m.overdue ? 'text-rose-700' : undefined}>{m.overdue}</span>}
                   delta={<span className="text-xs text-slate-500">{m.avgDaysToComplete === null ? '' : t('rp.solvedIn', { n: m.avgDaysToComplete })}</span>}
                 />
               </div>
@@ -155,7 +155,7 @@ export function ReportPage() {
 
             {r.byUnit.length > 0 && (
               <section>
-                <h3 className="mb-2 text-sm font-semibold text-slate-900">{t('units.title')}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-slate-800">{t('units.title')}</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[520px] text-left text-sm">
                     <thead className="border-b border-slate-200 text-xs text-slate-500 uppercase">
@@ -170,10 +170,10 @@ export function ReportPage() {
                     <tbody className="divide-y divide-slate-100">
                       {r.byUnit.map((u) => (
                         <tr key={u.unitId}>
-                          <td className="py-2 pr-3 font-medium text-slate-900">{u.name}</td>
+                          <td className="py-2 pr-3 font-medium text-slate-800">{u.name}</td>
                           <td className="px-3 py-2 text-right tabular-nums">{u.total}</td>
                           <td className="px-3 py-2 text-right tabular-nums">{u.open}</td>
-                          <td className={cx('px-3 py-2 text-right tabular-nums', u.overdue ? 'font-semibold text-red-700' : 'text-slate-400')}>{u.overdue}</td>
+                          <td className={cx('px-3 py-2 text-right tabular-nums', u.overdue ? 'font-semibold text-rose-700' : 'text-slate-400')}>{u.overdue}</td>
                           <td className="py-2 pl-3 text-right tabular-nums">{u.onTimeRate === null ? '–' : `${u.onTimeRate}%`}</td>
                         </tr>
                       ))}
@@ -185,13 +185,13 @@ export function ReportPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
               <section>
-                <h3 className="mb-2 text-sm font-semibold text-slate-900">{t('rp.subjects')}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-slate-800">{t('rp.subjects')}</h3>
                 {r.topSubjects.length ? (
                   <ul className="divide-y divide-slate-100 text-sm">
                     {r.topSubjects.map((s) => (
                       <li key={s.subject} className="flex justify-between gap-3 py-2">
                         <span className="text-slate-700">{s.subject}</span>
-                        <span className="shrink-0 tabular-nums text-slate-900">
+                        <span className="shrink-0 tabular-nums text-slate-800">
                           {s.total} <span className="text-xs text-slate-500">{t('rp.before', { n: s.previous })}</span>
                         </span>
                       </li>
@@ -202,19 +202,19 @@ export function ReportPage() {
                 )}
               </section>
               <section>
-                <h3 className="mb-2 text-sm font-semibold text-slate-900">{t('rp.lateList')}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-slate-800">{t('rp.lateList')}</h3>
                 {r.overdueItems.length ? (
                   <ul className="divide-y divide-slate-100 text-sm">
                     {r.overdueItems.map((o) => (
                       <li key={o.protocolNo} className="flex justify-between gap-3 py-2">
                         <span className="min-w-0">
-                          <span className="font-medium text-slate-900">{o.protocolNo}</span>
+                          <span className="font-medium text-slate-800">{o.protocolNo}</span>
                           <span className="block truncate text-xs text-slate-500">
                             {o.subject}
                             {mayor && ` · ${o.unit}`}
                           </span>
                         </span>
-                        <span className="shrink-0 font-medium tabular-nums text-red-700">{t('common.days', { n: o.daysLate })}</span>
+                        <span className="shrink-0 font-medium tabular-nums text-rose-700">{t('common.days', { n: o.daysLate })}</span>
                       </li>
                     ))}
                   </ul>

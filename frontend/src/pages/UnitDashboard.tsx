@@ -10,7 +10,7 @@ import { WorkflowSteps, type StepFilter } from '../components/WorkflowSteps';
 import { Card, ErrorNote, PageHeader, Segmented, Spinner, StatCard, StatusBadge, cx } from '../components/ui';
 import { t } from '../i18n';
 import { useApp } from '../lib/AppContext';
-import { formatDay, periodLabel, periodRange } from '../lib/dates';
+import { formatDay, greeting, periodLabel, periodRange } from '../lib/dates';
 import { deadlineText } from '../lib/labels';
 import { useApi } from '../lib/useApi';
 import { go } from '../lib/useHashRoute';
@@ -48,13 +48,17 @@ export function UnitDashboard({ unitId, own }: { unitId: string; own: boolean })
   return (
     <>
       {!own && (
-        <a href="#/drejtorite" className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
+        <a href="#/drejtorite" className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-800">
           <ArrowLeft size={16} aria-hidden /> {t('units.title')}
         </a>
       )}
       <PageHeader
-        title={unit.name}
-        subtitle={t('ud.subtitle', { type: t(`type.${unit.type}`), n: unit.slaDays, period: periodLabel(period) })}
+        title={own ? greeting() : unit.name}
+        subtitle={
+          own
+            ? t('ud.greetSub', { unit: unit.name, period: periodLabel(period) })
+            : t('ud.subtitle', { type: t(`type.${unit.type}`), n: unit.slaDays, period: periodLabel(period) })
+        }
         actions={<PeriodPicker value={period} onChange={setPeriod} />}
       />
 
@@ -82,36 +86,22 @@ export function UnitDashboard({ unitId, own }: { unitId: string; own: boolean })
             />
           </div>
 
-          <Card title={t('ud.workflow')} subtitle={own ? t('ud.workflowHint') : undefined}>
-            <WorkflowSteps counts={s} onSelect={pickStep} />
-          </Card>
-
-          <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-            <Card title={t('chart.byWeek')}>
-              <WeeklyChart weeks={s.byWeek} />
-            </Card>
-            <Card title={t('ud.topSubjects')}>
-              {s.topSubjects.length ? (
-                <BarList items={s.topSubjects.map((t) => ({ label: t.subject, value: t.total }))} />
-              ) : (
-                <p className="text-sm text-slate-500">{t('ud.noneInPeriod')}</p>
-              )}
-            </Card>
-          </div>
-
           <Card title={t('ud.attention')} subtitle={t('ud.attentionHint')} padded={false}>
             {!attention.length ? (
-              <p className="px-5 py-6 text-sm text-slate-500">{t('ud.allDone')}</p>
+              <p className="px-6 py-6 text-sm text-slate-500">{t('ud.allDone')}</p>
             ) : (
               <ul className="divide-y divide-slate-100">
                 {attention.map((r) => (
                   <li key={r.id}>
-                    <button onClick={() => setOpen(r)} className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-left hover:bg-slate-50">
-                      <span className="w-32 font-medium text-slate-900">{r.protocolNo}</span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-slate-700">{r.subject}</span>
-                      <span className="text-xs text-slate-500">{formatDay(r.date)}</span>
+                    <button onClick={() => setOpen(r)} className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-6 py-3.5 text-left transition hover:bg-slate-50">
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-medium text-slate-800">{r.subject}</span>
+                        <span className="block text-xs text-slate-500">
+                          {r.protocolNo} · {formatDay(r.date)}
+                        </span>
+                      </span>
                       <StatusBadge status={r.status} />
-                      <span className={cx('w-28 text-right text-sm tabular-nums', r.overdue ? 'font-medium text-red-700' : 'text-slate-600')}>
+                      <span className={cx('w-28 text-right text-sm tabular-nums', r.overdue ? 'font-medium text-rose-700' : 'text-slate-500')}>
                         {deadlineText(r)}
                       </span>
                     </button>
@@ -120,6 +110,24 @@ export function UnitDashboard({ unitId, own }: { unitId: string; own: boolean })
               </ul>
             )}
           </Card>
+
+          <Card title={t('ud.workflow')} subtitle={own ? t('ud.workflowHint') : undefined}>
+            <WorkflowSteps counts={s} onSelect={pickStep} />
+          </Card>
+
+          <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
+            <Card title={t('ov.chartTitle')} subtitle={t('ov.chartSub')}>
+              <WeeklyChart weeks={s.byWeek} />
+            </Card>
+            <Card title={t('ud.topSubjects')} subtitle={t('ov.subjectsSub')}>
+              {s.topSubjects.length ? (
+                <BarList items={s.topSubjects.map((t) => ({ label: t.subject, value: t.total }))} />
+              ) : (
+                <p className="text-sm text-slate-500">{t('ud.noneInPeriod')}</p>
+              )}
+            </Card>
+          </div>
+
 
           {!own && (
             <div id="unit-register">

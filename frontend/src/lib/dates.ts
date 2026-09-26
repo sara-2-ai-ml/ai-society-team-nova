@@ -116,3 +116,9 @@ export function periodLabel(p: Period): string {
   if (p.to) return t('period.to', { d: formatDay(p.to) });
   return t('preset.all');
 }
+
+/** "Mirëmëngjes" / "Mirëdita" / "Mirëmbrëma" (or the English), by the time of day. */
+export function greeting(d: Date = new Date()): string {
+  const h = d.getHours();
+  return t(h < 12 ? 'greet.morning' : h < 18 ? 'greet.afternoon' : 'greet.evening');
+}

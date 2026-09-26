@@ -49,7 +49,7 @@ export function RequestTable({
                 className="cursor-pointer hover:bg-brand-50/40 focus:bg-brand-50/60 focus:outline-none"
               >
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <span className="block font-medium text-slate-900">{r.protocolNo}</span>
+                  <span className="block font-medium text-slate-800">{r.protocolNo}</span>
                   <span className="block text-xs text-slate-500 tabular-nums">{formatDay(r.date)}</span>
                 </td>
                 <td className="min-w-[180px] px-3 py-3 text-slate-800">
@@ -64,7 +64,7 @@ export function RequestTable({
                 <td
                   className={cx(
                     'px-4 py-3 text-right whitespace-nowrap tabular-nums',
-                    r.overdue ? 'font-medium text-red-700' : 'text-slate-500',
+                    r.overdue ? 'font-medium text-rose-700' : 'text-slate-500',
                   )}
                 >
                   {deadlineText(r) ?? formatDay(r.deadline)}

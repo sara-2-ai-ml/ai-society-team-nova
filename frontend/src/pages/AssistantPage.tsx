@@ -91,7 +91,7 @@ export function AssistantPage() {
                     {m.facts.map((f) => (
                       <div key={f.label} className="flex justify-between gap-4 py-2">
                         <dt className="text-slate-600">{f.label}</dt>
-                        <dd className="font-medium whitespace-nowrap text-slate-900 tabular-nums">{f.value}</dd>
+                        <dd className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{f.value}</dd>
                       </div>
                     ))}
                   </dl>

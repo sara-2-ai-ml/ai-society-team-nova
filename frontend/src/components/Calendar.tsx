@@ -130,7 +130,7 @@ export function DatePicker({ value, onChange, max }: { value: string; onChange: 
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="flex h-10 w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-left text-sm text-slate-900 hover:border-slate-400"
+        className="flex h-10 w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-left text-sm text-slate-800 hover:border-slate-400"
       >
         <CalendarDays size={16} className="text-slate-500" aria-hidden />
         {formatDay(value)}
@@ -183,7 +183,7 @@ export function PeriodPicker({
             onClick={() => onChange({ preset: p.id })}
             className={cx(
               'rounded-md px-3 py-1.5 text-sm transition',
-              value.preset === p.id ? 'bg-white font-medium text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900',
+              value.preset === p.id ? 'bg-white font-medium text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800',
             )}
           >
             {t(p.labelKey)}

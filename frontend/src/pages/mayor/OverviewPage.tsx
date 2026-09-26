@@ -1,31 +1,114 @@
-import { AlarmClock, CheckCircle2, FileText, FolderOpen } from 'lucide-react';
+import { AlarmClock, ArrowRight, CheckCircle2, CornerUpLeft, FileText, FolderOpen, Inbox, ThumbsUp, type LucideIcon } from 'lucide-react';
 import { query } from '../../api/client';
-import type { Stats } from '../../api/types';
+import type { Stats, UnitStats } from '../../api/types';
 import { PeriodPicker } from '../../components/Calendar';
 import { BarList, WeeklyChart } from '../../components/Charts';
-import { WorkflowSteps } from '../../components/WorkflowSteps';
+import { Progress } from '../../components/ui/progress';
 import { Card, ErrorNote, PageHeader, Spinner, StatCard, cx } from '../../components/ui';
 import { t } from '../../i18n';
 import { useApp } from '../../lib/AppContext';
-import { periodLabel, periodRange } from '../../lib/dates';
+import { greeting, periodLabel, periodRange } from '../../lib/dates';
 import { useApi } from '../../lib/useApi';
 import { go } from '../../lib/useHashRoute';
 import { verdict } from './verdict';
+
+interface Insight {
+  icon: LucideIcon;
+  tone: string;
+  line: string;
+  sub?: string;
+  to?: string;
+}
+
+/** Up to three plain sentences about what needs the mayor's attention, most urgent first. */
+function insights(s: Stats, short: (id: string) => string): Insight[] {
+  const list: Insight[] = [];
+  const worst = [...s.byUnit].sort((a, b) => b.overdue - a.overdue)[0];
+  if (s.overdue > 0) {
+    list.push({
+      icon: AlarmClock,
+      tone: 'bg-rose-50 text-rose-600',
+      line: t('ov.lateLine', { n: s.overdue }),
+      sub: worst?.overdue ? t('ov.lateMost', { unit: short(worst.unitId), k: worst.overdue }) : undefined,
+      to: 'regjistri/overdue',
+    });
+  }
+  if (s.new > 0) {
+    list.push({ icon: Inbox, tone: 'bg-sky-50 text-sky-600', line: t('ov.newLine', { n: s.new }), sub: t('ov.newSub'), to: 'regjistri/new' });
+  }
+  if (s.returned > 0) {
+    list.push({
+      icon: CornerUpLeft,
+      tone: 'bg-amber-50 text-amber-600',
+      line: t('ov.returnedLine', { n: s.returned }),
+      sub: t('ov.returnedSub'),
+      to: 'regjistri/returned',
+    });
+  }
+  const best = s.byUnit.filter((u) => u.onTimeRate !== null && u.done >= 3).sort((a, b) => b.onTimeRate! - a.onTimeRate!)[0];
+  if (best && list.length < 3) {
+    list.push({
+      icon: ThumbsUp,
+      tone: 'bg-emerald-50 text-emerald-600',
+      line: t('ov.bestLine', { unit: short(best.unitId), n: best.onTimeRate! }),
+      sub: t('ov.bestSub'),
+      to: `drejtorite/${best.unitId}`,
+    });
+  }
+  return list.slice(0, 3);
+}
+
+function UnitRow({ u }: { u: UnitStats }) {
+  const { units } = useApp();
+  const unit = units.find((x) => x.id === u.unitId);
+  const v = verdict(u);
+  const rate = u.onTimeRate;
+  return (
+    <button
+      onClick={() => go(`drejtorite/${u.unitId}`)}
+      className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-lg px-3 py-3 text-left transition hover:bg-slate-50"
+    >
+      <span className="min-w-0">
+        <span className="block truncate font-medium text-slate-800">{unit?.short}</span>
+        <span className="block text-xs text-slate-500">{t('ov.unitLine', { open: u.new + u.inProgress, late: u.overdue })}</span>
+      </span>
+      <span className={cx('rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap', v.className)}>{v.label}</span>
+      <span className="col-span-2 flex items-center gap-3">
+        <Progress
+          value={rate ?? 0}
+          className={cx(
+            'h-1.5 bg-slate-100',
+            rate === null
+              ? ''
+              : rate >= 80
+                ? '[&>[data-slot=progress-indicator]]:bg-emerald-400'
+                : rate >= 60
+                  ? '[&>[data-slot=progress-indicator]]:bg-amber-400'
+                  : '[&>[data-slot=progress-indicator]]:bg-rose-400',
+          )}
+          aria-label={t('col.onTime')}
+        />
+        <span className="w-24 shrink-0 text-right text-xs text-slate-500 tabular-nums">
+          {rate === null ? '–' : t('ov.onTimeShort', { n: rate })}
+        </span>
+      </span>
+    </button>
+  );
+}
 
 export function OverviewPage() {
   const { units, period, setPeriod } = useApp();
   const { from, to } = periodRange(period);
   const stats = useApi<Stats>(`/requests/stats${query({ from, to })}`);
   const s = stats.data;
-  const unit = (id: string) => units.find((u) => u.id === id);
-
-  const worst = s?.byUnit.find((u) => u.overdue > 0);
+  const short = (id: string) => units.find((u) => u.id === id)?.short ?? id;
+  const byType = (type: 'drejtori' | 'agjenci') => (s?.byUnit ?? []).filter((u) => units.find((x) => x.id === u.unitId)?.type === type);
 
   return (
     <>
       <PageHeader
-        title={t('ov.title')}
-        subtitle={t('ov.subtitle', { period: periodLabel(period) })}
+        title={greeting()}
+        subtitle={t('ov.greetSub', { period: periodLabel(period) })}
         actions={<PeriodPicker value={period} onChange={setPeriod} />}
       />
       {stats.error && <ErrorNote error={stats.error} />}
@@ -33,35 +116,50 @@ export function OverviewPage() {
         <Spinner />
       ) : (
         <div className="space-y-6">
-          <p className="rounded-xl border border-brand-100 bg-brand-50 px-5 py-4 text-[15px] text-brand-900">
-            <strong>{t('ov.sumRequests', { n: s.total })}</strong>
-            {t('ov.sumPeriod')}
-            {s.onTimeRate !== null && (
-              <>{t('ov.sumOnTime', { n: s.onTimeRate })}</>
-            )}
-            .{' '}
-            {worst ? (
-              <>
-                <strong className="text-red-700">{t('ov.sumLate', { n: s.overdue })}</strong>
-                {t('ov.sumMost')}{' '}
-                <a href={`#/drejtorite/${worst.unitId}`} className="font-semibold underline">
-                  {unit(worst.unitId)?.short}
-                </a>{' '}
-                ({worst.overdue}).
-              </>
-            ) : (
-              t('ov.sumNoLate')
-            )}
-          </p>
+          <Card title={t('ov.todayTitle')} subtitle={t('ov.todaySub')} padded={false}>
+            {(() => {
+              const list = insights(s, short);
+              if (!list.length) return <p className="px-6 py-5 text-sm text-slate-600">{t('ov.allGood')}</p>;
+              return (
+                <ul className="divide-y divide-slate-100">
+                  {list.map((i) => (
+                    <li key={i.line} className="flex items-center gap-4 px-6 py-4">
+                      <span className={cx('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', i.tone)}>
+                        <i.icon size={18} aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium text-slate-800">{i.line}</span>
+                        {i.sub && <span className="block text-sm text-slate-500">{i.sub}</span>}
+                      </span>
+                      {i.to && (
+                        <button
+                          onClick={() => go(i.to!)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+                        >
+                          {t('common.view')} <ArrowRight size={15} aria-hidden />
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </Card>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label={t('kpi.total')} value={s.total} icon={FileText} tone="brand" onClick={() => go('regjistri')} />
-            <StatCard label={t('kpi.open')} value={s.new + s.inProgress} icon={FolderOpen} hint={t('kpi.openHint', { a: s.new, b: s.inProgress })} />
+            <StatCard label={t('kpi.total')} value={s.total} icon={FileText} tone="brand" hint={t('kpi.totalHint')} onClick={() => go('regjistri')} />
+            <StatCard
+              label={t('kpi.open')}
+              value={s.new + s.inProgress}
+              icon={FolderOpen}
+              hint={t('kpi.openHint2', { a: s.new, b: s.inProgress })}
+            />
             <StatCard
               label={t('kpi.overdue')}
               value={s.overdue}
               icon={AlarmClock}
               tone={s.overdue ? 'bad' : 'good'}
+              hint={s.overdue ? t('kpi.lateHint') : t('kpi.lateNone')}
               onClick={() => go('regjistri/overdue')}
             />
             <StatCard
@@ -69,79 +167,31 @@ export function OverviewPage() {
               value={s.onTimeRate === null ? '–' : `${s.onTimeRate}%`}
               icon={CheckCircle2}
               tone={s.onTimeRate === null ? 'neutral' : s.onTimeRate >= 80 ? 'good' : 'warn'}
-              hint={s.avgDaysToComplete === null ? undefined : t('kpi.avg', { n: s.avgDaysToComplete })}
+              hint={s.avgDaysToComplete === null ? t('kpi.onTimeHintNoAvg') : t('kpi.onTimeHint2', { n: s.avgDaysToComplete })}
             />
           </div>
 
-          <Card title={t('ud.workflow')} subtitle={t('ov.workflowHint')}>
-            <WorkflowSteps counts={s} onSelect={(step) => go(`regjistri/${step}`)} />
-          </Card>
-
-          <Card title={t('units.title')} subtitle={t('ov.unitsHint')} padded={false}>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="border-b border-slate-200 bg-slate-50 text-xs font-medium tracking-wide text-slate-500 uppercase">
-                  <tr>
-                    <th className="px-5 py-3">{t('col.unit')}</th>
-                    <th className="px-3 py-3 text-right">{t('col.total')}</th>
-                    <th className="px-3 py-3 text-right">{t('col.open')}</th>
-                    <th className="px-3 py-3 text-right">{t('col.overdue')}</th>
-                    <th className="px-3 py-3">{t('col.onTime')}</th>
-                    <th className="px-5 py-3">{t('col.state')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {s.byUnit.map((u) => {
-                    const v = verdict(u);
-                    return (
-                      <tr
-                        key={u.unitId}
-                        onClick={() => go(`drejtorite/${u.unitId}`)}
-                        onKeyDown={(e) => e.key === 'Enter' && go(`drejtorite/${u.unitId}`)}
-                        tabIndex={0}
-                        className="cursor-pointer hover:bg-brand-50/40 focus:bg-brand-50/60 focus:outline-none"
-                      >
-                        <td className="px-5 py-3">
-                          <span className="block font-medium whitespace-nowrap text-slate-900">{unit(u.unitId)?.short}</span>
-                          <span className="block text-xs text-slate-500">{t(`type.${unit(u.unitId)?.type ?? 'drejtori'}`)}</span>
-                        </td>
-                        <td className="px-3 py-3 text-right tabular-nums">{u.total}</td>
-                        <td className="px-3 py-3 text-right tabular-nums">{u.new + u.inProgress}</td>
-                        <td className={cx('px-3 py-3 text-right tabular-nums', u.overdue ? 'font-semibold text-red-700' : 'text-slate-400')}>
-                          {u.overdue}
-                        </td>
-                        <td className="px-3 py-3">
-                          {u.onTimeRate === null ? (
-                            <span className="text-slate-400">–</span>
-                          ) : (
-                            <span className="flex items-center gap-2">
-                              <span className="h-2 w-24 rounded-full bg-slate-100">
-                                <span
-                                  className={cx('block h-2 rounded-full', u.onTimeRate >= 80 ? 'bg-emerald-500' : u.onTimeRate >= 60 ? 'bg-amber-500' : 'bg-red-500')}
-                                  style={{ width: `${u.onTimeRate}%` }}
-                                />
-                              </span>
-                              <span className="tabular-nums">{u.onTimeRate}%</span>
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3">
-                          <span className={cx('rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset', v.className)}>{v.label}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {[
+              { title: t('units.departments'), list: byType('drejtori') },
+              { title: t('units.agencies'), list: byType('agjenci') },
+            ].map((g) => (
+              <Card key={g.title} title={g.title} subtitle={t('ov.unitsSub')} padded={false}>
+                <div className="p-3">
+                  {g.list.map((u) => (
+                    <UnitRow key={u.unitId} u={u} />
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-            <Card title={t('chart.byWeek')}>
+            <Card title={t('ov.chartTitle')} subtitle={t('ov.chartSub')}>
               <WeeklyChart weeks={s.byWeek} />
             </Card>
-            <Card title={t('ud.topSubjects')}>
-              <BarList items={s.topSubjects.map((t) => ({ label: t.subject, value: t.total }))} />
+            <Card title={t('ud.topSubjects')} subtitle={t('ov.subjectsSub')}>
+              <BarList items={s.topSubjects.map((x) => ({ label: x.subject, value: x.total }))} />
             </Card>
           </div>
         </div>
