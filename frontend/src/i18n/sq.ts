@@ -165,7 +165,7 @@ export const sq = {
   'chart.completed': 'Të përfunduara',
 
   // Sign in
-  'login.headline': 'Kërkesat e qytetarëve, nga protokolli te zgjidhja.',
+  'login.headline': 'Një bashki. Një sistem. Një qytet.',
   'login.s1.who': 'Operatori',
   'login.s1.text': 'regjistron kërkesën (formular ose Excel) dhe e dërgon te drejtoria ose agjencia.',
   'login.s2.who': 'Drejtoria / agjencia',

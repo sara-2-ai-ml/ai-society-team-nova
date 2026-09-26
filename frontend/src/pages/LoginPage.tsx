@@ -78,8 +78,14 @@ export function LoginPage() {
           </span>
         </div>
 
-        <div className="mt-auto max-w-lg">
-          <h1 className="text-[40px] leading-[1.15] font-bold tracking-tight">{t('login.headline')}</h1>
+        <div className="mt-auto">
+          <h1 className="leading-[0.95] font-extrabold tracking-tighter">
+            <span className="block text-[64px] text-white xl:text-[76px]">Bashkia</span>
+            <span className="block bg-gradient-to-r from-gold-300 via-gold-500 to-gold-600 bg-clip-text text-[104px] text-transparent xl:text-[128px]">
+              360°
+            </span>
+          </h1>
+          <p className="mt-6 max-w-md text-xl font-light tracking-wide text-brand-100 italic">“{t('login.headline')}”</p>
         </div>
 
         <img src={skyline} alt="" aria-hidden className="pointer-events-none mt-auto w-full max-w-2xl self-center pt-8 opacity-80 select-none" />

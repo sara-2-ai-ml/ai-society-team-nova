@@ -168,7 +168,7 @@ export const en: Dict = {
   'chart.completed': 'Completed',
 
   // Sign in
-  'login.headline': "Citizens' requests, from registration to resolution.",
+  'login.headline': 'One municipality. One system. One city.',
   'login.s1.who': 'The operator',
   'login.s1.text': 'registers the request (form or Excel) and sends it to the department or agency.',
   'login.s2.who': 'The department / agency',
