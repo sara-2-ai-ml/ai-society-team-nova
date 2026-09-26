@@ -4,6 +4,8 @@ const n = (v: V) => Number(v.n);
 /** Albanian: the default language. Every key here must also exist in en.ts. */
 export const sq = {
   'lang.label': 'Gjuha',
+  'as.confirmDelete': 'Fshi',
+  'as.cancelDelete': 'Anulo',
   'greet.morning': 'Mirëmëngjes',
   'greet.afternoon': 'Mirëdita',
   'greet.evening': 'Mirëmbrëma',
@@ -24,7 +26,7 @@ export const sq = {
   'ov.unitLine': '{open} të hapura · {late} me vonesë',
   'ov.onTimeShort': '{n}% në kohë',
   'ov.chartTitle': 'Sa kërkesa vijnë çdo javë',
-  'ov.chartSub': 'Blu: të regjistruara · jeshile: të përfunduara',
+  'ov.chartSub': 'Blu e errët: të regjistruara · e artë: të përfunduara',
   'ov.subjectsSub': 'Për çfarë shkruajnë më shumë qytetarët',
   'kpi.totalHint': 'kërkesa të regjistruara në këtë periudhë',
   'kpi.openHint2': '{a} presin të nisen, {b} po trajtohen',
@@ -164,11 +166,11 @@ export const sq = {
 
   // Sign in
   'login.headline': 'Kërkesat e qytetarëve, nga protokolli te zgjidhja.',
-  'login.s1.who': '1. Operatori',
+  'login.s1.who': 'Operatori',
   'login.s1.text': 'regjistron kërkesën (formular ose Excel) dhe e dërgon te drejtoria ose agjencia.',
-  'login.s2.who': '2. Drejtoria / agjencia',
+  'login.s2.who': 'Drejtoria / agjencia',
   'login.s2.text': 'e merr, e trajton dhe e përfundon, ose e kthen nëse nuk është e saj.',
-  'login.s3.who': '3. Kryetari',
+  'login.s3.who': 'Kryetari',
   'login.s3.text': 'sheh të gjitha drejtoritë bashkë: sa kërkesa, sa të vonuara, ku duhet ndërhyrë.',
   'login.title': 'Hyni në panel',
   'login.subtitle': 'Përdorni llogarinë tuaj të punës.',

@@ -16,7 +16,7 @@ function UnitCard({ stats }: { stats: UnitStats }) {
   return (
     <a
       href={`#/drejtorite/${unit.id}`}
-      className="group flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-300 hover:shadow"
+      className="group flex flex-col rounded-2xl bg-white p-5 shadow-[0_2px_12px_rgba(20,33,61,0.06)] transition hover:-translate-y-0.5 hover:shadow-lg"
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-semibold text-slate-800">{unit.name}</h3>

@@ -27,8 +27,8 @@ export function WorkflowSteps({ counts, onSelect }: { counts: StatusCounts; onSe
               <Tag
                 onClick={s.id && onSelect ? () => onSelect(s.id!) : undefined}
                 className={cx(
-                  'flex h-full w-full flex-col rounded-lg border border-slate-200 bg-slate-50/60 p-4 text-left',
-                  s.id && onSelect && 'transition hover:border-brand-300 hover:bg-brand-50/50',
+                  'flex h-full w-full flex-col rounded-2xl bg-slate-50 p-4 text-left',
+                  s.id && onSelect && 'transition hover:bg-gold-50',
                 )}
               >
                 <span className="flex items-center gap-2 text-xs font-medium text-slate-500">
@@ -36,7 +36,7 @@ export function WorkflowSteps({ counts, onSelect }: { counts: StatusCounts; onSe
                   {s.who}
                 </span>
                 <span className="mt-3 flex items-center gap-2 font-semibold text-slate-800">
-                  <s.icon size={18} className="text-brand-600" aria-hidden />
+                  <s.icon size={18} className="text-gold-600" aria-hidden />
                   {s.title}
                 </span>
                 <span className="mt-1 text-2xl font-semibold tabular-nums text-slate-800">{s.value}</span>

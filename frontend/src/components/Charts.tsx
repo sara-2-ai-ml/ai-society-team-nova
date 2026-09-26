@@ -3,9 +3,9 @@ import type { Stats } from '../api/types';
 import { t } from '../i18n';
 import { formatShort } from '../lib/dates';
 
-// Soft blue and green: easy on the eyes, still clearly different in lightness.
-const BRAND = '#7fa3c6';
-const DONE = '#86c9ac';
+// Navy and gold: the two app colours, clearly different in lightness.
+const BRAND = '#14213d';
+const DONE = '#fca311';
 
 /** Requests registered per week, and how many of them are already done. */
 export function WeeklyChart({ weeks }: { weeks: Stats['byWeek'] }) {
@@ -20,11 +20,11 @@ export function WeeklyChart({ weeks }: { weeks: Stats['byWeek'] }) {
           <Tooltip
             cursor={{ fill: '#f1f5f9' }}
             labelFormatter={(l) => t('chart.weekOf', { d: String(l) })}
-            contentStyle={{ borderRadius: 8, borderColor: '#e2e8f0', fontSize: 13 }}
+            contentStyle={{ borderRadius: 12, borderColor: '#e2e8f0', fontSize: 13 }}
           />
           <Legend iconType="circle" wrapperStyle={{ fontSize: 13 }} />
-          <Bar dataKey="total" name={t('chart.registered')} fill={BRAND} radius={[6, 6, 0, 0]} maxBarSize={26} />
-          <Bar dataKey="done" name={t('chart.completed')} fill={DONE} radius={[6, 6, 0, 0]} maxBarSize={26} />
+          <Bar dataKey="total" name={t('chart.registered')} fill={BRAND} radius={[6, 6, 0, 0]} maxBarSize={18} />
+          <Bar dataKey="done" name={t('chart.completed')} fill={DONE} radius={[6, 6, 0, 0]} maxBarSize={18} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -48,7 +48,7 @@ export function BarList({ items, max }: { items: { label: string; value: number;
             </span>
           </div>
           <div className="h-2 rounded-full bg-slate-100">
-            <div className="h-2 rounded-full bg-brand-300" style={{ width: `${(i.value / top) * 100}%` }} />
+            <div className="h-2 rounded-full bg-gradient-to-r from-gold-400 to-gold-500" style={{ width: `${(i.value / top) * 100}%` }} />
           </div>
         </li>
       ))}

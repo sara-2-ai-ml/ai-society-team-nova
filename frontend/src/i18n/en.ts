@@ -7,6 +7,8 @@ const s = (v: V) => (n(v) === 1 ? '' : 's');
 /** English. Typed against the Albanian dictionary, so a missing key fails the build. */
 export const en: Dict = {
   'lang.label': 'Language',
+  'as.confirmDelete': 'Delete',
+  'as.cancelDelete': 'Cancel',
   'greet.morning': 'Good morning',
   'greet.afternoon': 'Good afternoon',
   'greet.evening': 'Good evening',
@@ -27,7 +29,7 @@ export const en: Dict = {
   'ov.unitLine': '{open} open · {late} overdue',
   'ov.onTimeShort': '{n}% on time',
   'ov.chartTitle': 'How many requests come in each week',
-  'ov.chartSub': 'Blue: registered · green: completed',
+  'ov.chartSub': 'Navy: registered · gold: completed',
   'ov.subjectsSub': 'What citizens write about most',
   'kpi.totalHint': 'requests registered in this period',
   'kpi.openHint2': '{a} waiting to start, {b} being handled',
@@ -167,11 +169,11 @@ export const en: Dict = {
 
   // Sign in
   'login.headline': "Citizens' requests, from registration to resolution.",
-  'login.s1.who': '1. The operator',
+  'login.s1.who': 'The operator',
   'login.s1.text': 'registers the request (form or Excel) and sends it to the department or agency.',
-  'login.s2.who': '2. The department / agency',
+  'login.s2.who': 'The department / agency',
   'login.s2.text': "receives it, handles it and completes it, or returns it if it isn't theirs.",
-  'login.s3.who': '3. The mayor',
+  'login.s3.who': 'The mayor',
   'login.s3.text': 'sees every department together: how many requests, how many are late, where to step in.',
   'login.title': 'Sign in',
   'login.subtitle': 'Use your work account.',

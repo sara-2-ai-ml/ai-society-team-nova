@@ -68,7 +68,8 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown 
     const message = Array.isArray(body?.message) ? body.message.join('. ') : body?.message;
     throw new ApiError(message || t('common.error', { status: res.status }), res.status);
   }
-  const data = (await res.json()) as T;
+  // 204 No Content (e.g. after a delete) has no body to read.
+  const data = (res.status === 204 ? undefined : await res.json()) as T;
   if ((rest.method ?? 'GET') !== 'GET' && !path.includes('dryRun') && !path.startsWith('/auth') && !path.startsWith('/assistant') && !path.includes('suggest-unit')) {
     window.dispatchEvent(new Event(DATA_CHANGED));
   }

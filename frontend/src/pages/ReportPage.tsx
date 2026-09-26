@@ -130,7 +130,7 @@ export function ReportPage() {
       {!r || (report.loading && refreshCount > 0 && !report.error) ? (
         !report.error && <Spinner label={t('rp.preparing')} />
       ) : (
-        <article className="print-plain mx-auto max-w-4xl rounded-xl border border-slate-200 bg-white shadow-sm">
+        <article className="print-plain mx-auto max-w-4xl rounded-2xl bg-white shadow-[0_2px_12px_rgba(20,33,61,0.06)]">
           <header className="border-b border-slate-200 px-8 py-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>

@@ -68,8 +68,8 @@ export function UnitDashboard({ unitId, own }: { unitId: string; own: boolean })
       ) : (
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label={t('kpi.new')} value={s.new} icon={Inbox} tone="brand" hint={t('kpi.newHint')} onClick={() => pickStep('new')} />
-            <StatCard label={t('kpi.inProgress')} value={s.inProgress} icon={PlayCircle} tone="warn" hint={t('kpi.inProgressHint')} onClick={() => pickStep('in_progress')} />
+            <StatCard label={t('kpi.new')} value={s.new} icon={Inbox} tone="navy" hint={t('kpi.newHint')} onClick={() => pickStep('new')} />
+            <StatCard label={t('kpi.inProgress')} value={s.inProgress} icon={PlayCircle} tone="gold" hint={t('kpi.inProgressHint')} onClick={() => pickStep('in_progress')} />
             <StatCard
               label={t('kpi.overdue')}
               value={s.overdue}

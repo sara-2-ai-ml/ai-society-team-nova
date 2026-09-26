@@ -5,20 +5,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Calm, easy-on-the-eyes palette: a muted sea blue for the municipality, soft neutrals,
-   colour only where it means something. The brand-* scale is used across the pages. */
+/* Navy and gold: a deep, calm navy for the municipality, a warm gold accent that makes
+   the important things friendly, and a soft grey page so white cards float on it.
+   The brand-* scale (navy) and gold-* scale are used across the pages. */
 @theme {
-  --color-brand-50: #f1f6fa;
-  --color-brand-100: #e0ebf3;
-  --color-brand-200: #c3d6e6;
-  --color-brand-300: #98b8d2;
-  --color-brand-500: #4f7fa6;
-  --color-brand-600: #436f93;
-  --color-brand-700: #3a6284;
-  --color-brand-800: #2f506c;
-  --color-brand-900: #243d53;
+  --color-brand-50: #eef1f7;
+  --color-brand-100: #dde3ee;
+  --color-brand-200: #bcc6da;
+  --color-brand-300: #8f9dbb;
+  --color-brand-400: #5f7098;
+  --color-brand-500: #3d4f7a;
+  --color-brand-600: #2b3b62;
+  --color-brand-700: #203050;
+  --color-brand-800: #182744;
+  --color-brand-900: #14213d;
 
-  --color-page: #f5f7f9;
+  --color-gold-50: #fff7e8;
+  --color-gold-100: #feecc8;
+  --color-gold-200: #fdd98e;
+  --color-gold-300: #fdc55c;
+  --color-gold-400: #fcb235;
+  --color-gold-500: #fca311;
+  --color-gold-600: #e08c00;
+  --color-gold-700: #a86600;
+
+  --color-page: #eceef2;
 }
 
 html,
@@ -28,12 +39,12 @@ body,
 }
 
 body {
-  @apply bg-page font-sans text-slate-700 antialiased;
+  @apply font-sans text-slate-700 antialiased;
 }
 
 /* Keyboard focus is always visible. */
 :focus-visible {
-  outline: 2px solid var(--color-brand-500);
+  outline: 2px solid var(--color-gold-500);
   outline-offset: 2px;
 }
 
@@ -98,13 +109,13 @@ body {
 }
 
 :root {
-  --background: oklch(0.977 0.003 240);
+  --background: oklch(0.945 0.006 265);
   --foreground: oklch(0.3 0.02 250);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.3 0.02 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.3 0.02 250);
-  --primary: oklch(0.53 0.075 240);
+  --primary: oklch(0.26 0.06 265);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.955 0.01 240);
   --secondary-foreground: oklch(0.35 0.03 245);
@@ -115,16 +126,16 @@ body {
   --destructive: oklch(0.58 0.13 18);
   --border: oklch(0.925 0.006 240);
   --input: oklch(0.9 0.008 240);
-  --ring: oklch(0.7 0.06 240);
+  --ring: oklch(0.8 0.15 75);
   --chart-1: oklch(0.6 0.08 240);
   --chart-2: oklch(0.74 0.09 170);
   --chart-3: oklch(0.82 0.1 80);
   --chart-4: oklch(0.7 0.1 20);
   --chart-5: oklch(0.7 0.05 280);
-  --radius: 0.75rem;
+  --radius: 0.875rem;
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.3 0.02 250);
-  --sidebar-primary: oklch(0.53 0.075 240);
+  --sidebar-primary: oklch(0.26 0.06 265);
   --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.955 0.012 240);
   --sidebar-accent-foreground: oklch(0.35 0.05 245);

@@ -25,6 +25,7 @@ export function AssistantPage() {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
 
   const loadConversations = () =>
@@ -88,10 +89,20 @@ export function AssistantPage() {
     }
   };
 
+  // First click asks, second click deletes; the list updates right away.
   const deleteConversation = async (id: string) => {
-    await api<void>(`/assistant/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (confirmDelete !== id) {
+      setConfirmDelete(id);
+      return;
+    }
+    setConfirmDelete(null);
+    setConversations((list) => list.filter((c) => c.id !== id));
     if (activeConversation === id) newConversation();
-    loadConversations();
+    try {
+      await api<void>(`/assistant/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    } finally {
+      loadConversations();
+    }
   };
 
   const submit = (e: FormEvent) => {
@@ -108,7 +119,7 @@ export function AssistantPage() {
         subtitle={t('as.subtitle', { scope })}
       />
       <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <aside className="overflow-hidden rounded-2xl bg-white shadow-[0_2px_12px_rgba(20,33,61,0.06)]">
           <div className="border-b border-slate-100 p-3">
             <button
               type="button"
@@ -140,14 +151,34 @@ export function AssistantPage() {
                       {new Date(`${conversation.updated_at}Z`).toLocaleDateString()}
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteConversation(conversation.id)}
-                    className="mr-2 rounded-md p-1.5 text-slate-400 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 focus:opacity-100"
-                    aria-label={t('as.deleteConversation')}
-                  >
-                    <Trash2 size={14} aria-hidden />
-                  </button>
+                  {confirmDelete === conversation.id ? (
+                    <span className="mr-2 flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => deleteConversation(conversation.id)}
+                        className="rounded-md bg-rose-600 px-2 py-1 text-xs font-semibold text-white hover:bg-rose-700"
+                      >
+                        {t('as.confirmDelete')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDelete(null)}
+                        className="rounded-md px-1.5 py-1 text-xs text-slate-500 hover:bg-slate-100"
+                      >
+                        {t('as.cancelDelete')}
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => deleteConversation(conversation.id)}
+                      className="mr-2 rounded-md p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                      aria-label={t('as.deleteConversation')}
+                      title={t('as.deleteConversation')}
+                    >
+                      <Trash2 size={15} aria-hidden />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

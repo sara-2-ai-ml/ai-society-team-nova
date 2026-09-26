@@ -13,23 +13,23 @@ export interface NavItem {
   badge?: number;
 }
 
-function Brand() {
+function Brand({ dark }: { dark?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white" aria-hidden>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold-500 text-brand-900" aria-hidden>
         <Landmark size={20} />
       </span>
       <div className="leading-tight">
-        <div className="text-[15px] font-bold text-slate-800">{t('brand.title')}</div>
-        <div className="text-xs text-slate-500">{t('brand.subtitle')}</div>
+        <div className={cx('text-[15px] font-bold', dark ? 'text-white' : 'text-brand-900')}>{t('brand.title')}</div>
+        <div className={cx('text-xs', dark ? 'text-brand-200' : 'text-slate-500')}>{t('brand.subtitle')}</div>
       </div>
     </div>
   );
 }
 
-function Nav({ items, current, onGo }: { items: NavItem[]; current: string; onGo?: () => void }) {
+function Nav({ items, current, onGo, dark }: { items: NavItem[]; current: string; onGo?: () => void; dark?: boolean }) {
   return (
-    <nav aria-label={t('nav.menu')} className="flex flex-col gap-0.5">
+    <nav aria-label={t('nav.menu')} className="flex flex-col gap-1">
       {items.map((item) => {
         const active = current === item.path;
         return (
@@ -39,17 +39,28 @@ function Nav({ items, current, onGo }: { items: NavItem[]; current: string; onGo
             onClick={onGo}
             aria-current={active ? 'page' : undefined}
             className={cx(
-              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition',
-              active ? 'bg-brand-50 font-semibold text-brand-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800',
+              'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition',
+              active
+                ? dark
+                  ? 'bg-white font-semibold text-brand-900 shadow-sm'
+                  : 'bg-brand-50 font-semibold text-brand-900'
+                : dark
+                  ? 'text-brand-100 hover:bg-white/10 hover:text-white'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800',
             )}
           >
-            <item.icon size={18} strokeWidth={1.9} aria-hidden className={active ? 'text-brand-600' : 'text-slate-400'} />
+            <item.icon
+              size={18}
+              strokeWidth={1.9}
+              aria-hidden
+              className={active ? 'text-gold-600' : dark ? 'text-brand-300' : 'text-slate-400'}
+            />
             <span className="flex-1">{item.label}</span>
             {!!item.badge && (
               <span
                 className={cx(
                   'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
-                  active ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600',
+                  active || dark ? 'bg-gold-500 text-brand-900' : 'bg-slate-100 text-slate-600',
                 )}
               >
                 {item.badge}
@@ -92,12 +103,31 @@ function UserChip({ user }: { user: User }) {
   );
 }
 
-function SidebarFooter({ onLogout }: { onLogout: () => void }) {
+/** The signed-in person at the top of the sidebar: avatar with a gold ring, name, role. */
+function Profile({ user }: { user: User }) {
+  const { name, role, initials } = useIdentity(user);
   return (
-    <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-4">
+    <div className="flex flex-col items-center text-center">
+      <span className="rounded-full p-1 ring-2 ring-gold-500">
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-600 text-xl font-semibold text-white" aria-hidden>
+          {initials}
+        </span>
+      </span>
+      <p className="mt-3 text-sm leading-snug font-semibold text-white">{name}</p>
+      <p className="mt-0.5 text-xs font-medium tracking-wide text-gold-400 uppercase">{role}</p>
+    </div>
+  );
+}
+
+function SidebarFooter({ onLogout, dark }: { onLogout: () => void; dark?: boolean }) {
+  return (
+    <div className={cx('flex items-center justify-between gap-2 border-t pt-4', dark ? 'border-white/10' : 'border-slate-200')}>
       <button
         onClick={onLogout}
-        className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+        className={cx(
+          'inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium',
+          dark ? 'text-brand-100 hover:bg-white/10 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800',
+        )}
       >
         <LogOut size={15} aria-hidden /> {t('user.logout')}
       </button>
@@ -122,14 +152,18 @@ export function Layout({
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
-      <aside className="no-print sticky top-0 hidden h-screen flex-col gap-8 border-r border-slate-200 bg-white px-4 py-6 lg:flex">
-        <div className="px-2">
-          <Brand />
-        </div>
-        <Nav items={items} current={current} />
-        <div className="mt-auto">
-          <SidebarFooter onLogout={onLogout} />
+    <div className="min-h-screen bg-page lg:grid lg:grid-cols-[280px_1fr]">
+      {/* Desktop: a floating navy sidebar */}
+      <aside className="no-print sticky top-0 hidden h-screen p-4 pr-0 lg:block">
+        <div className="flex h-full flex-col gap-7 overflow-y-auto rounded-3xl bg-brand-900 px-4 py-6 shadow-xl shadow-brand-900/20">
+          <div className="px-2">
+            <Brand dark />
+          </div>
+          <Profile user={user} />
+          <Nav items={items} current={current} dark />
+          <div className="mt-auto">
+            <SidebarFooter onLogout={onLogout} dark />
+          </div>
         </div>
       </aside>
 
@@ -157,13 +191,12 @@ export function Layout({
 
       <div className="min-w-0">
         {/* Desktop: today's date and who is signed in */}
-        <header className="no-print sticky top-0 z-10 hidden h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-8 backdrop-blur lg:flex">
-          <p className="inline-flex items-center gap-2 text-sm text-slate-600">
-            <CalendarDays size={16} className="text-slate-400" aria-hidden /> {formatLongDate()}
+        <header className="no-print hidden items-center justify-end px-8 pt-6 lg:flex xl:px-10">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-slate-600 shadow-sm">
+            <CalendarDays size={16} className="text-gold-600" aria-hidden /> {formatLongDate()}
           </p>
-          <UserChip user={user} />
         </header>
-        <main className="px-4 py-6 sm:px-6 sm:py-8 xl:px-8">
+        <main className="px-4 py-6 sm:px-6 lg:pt-2 xl:px-10">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>

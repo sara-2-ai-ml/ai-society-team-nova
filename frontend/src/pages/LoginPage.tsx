@@ -2,6 +2,7 @@ import { Building2, Landmark, LogIn, UserRound } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { api } from '../api/client';
 import type { DemoAccount } from '../api/types';
+import skyline from '../assets/skyline.png';
 import { useAuth } from '../auth/AuthContext';
 import { Button, ErrorNote, Field, Input, cx } from '../components/ui';
 import { LanguageSwitch, getLang, t, type Key } from '../i18n';
@@ -36,40 +37,67 @@ export function LoginPage() {
     }
   };
 
+  const pick = (a: DemoAccount) => {
+    setUsername(a.username);
+    document.getElementById('login-password')?.focus();
+  };
+  const nameOf = (a: DemoAccount) => (getLang() === 'en' ? a.fullNameEn : a.fullName);
+  // Under a "Drejtoritë"/"Agjencitë" label the prefix is implied: "Shërbimeve Sociale", "Social Services".
+  const shortOf = (a: DemoAccount) =>
+    a.unitId ? nameOf(a).replace(/^(Drejtoria|Agjencia) e /, '').replace(/ (Department|Agency)$/, '') : nameOf(a);
+  const isAgency = (a: DemoAccount) => a.username.startsWith('agjencia.');
+
+  const chip = (a: DemoAccount) => (
+    <button
+      key={a.username}
+      type="button"
+      onClick={() => pick(a)}
+      title={nameOf(a)}
+      className={cx(
+        'truncate rounded-xl px-3 py-2 text-left text-[13px] transition',
+        username === a.username
+          ? 'bg-brand-900 font-medium text-white'
+          : 'bg-slate-100 text-slate-700 hover:bg-gold-100 hover:text-brand-900',
+      )}
+    >
+      {shortOf(a)}
+    </button>
+  );
+
+  // One screen, no scrolling: the story on the navy side, the form in a card on the right.
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-brand-800 p-12 text-white lg:flex">
+    <div className="grid min-h-screen bg-page lg:h-screen lg:grid-cols-[1.1fr_1fr] lg:overflow-hidden">
+      <section className="relative hidden flex-col overflow-hidden bg-brand-900 px-12 pt-10 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold-500 text-brand-900">
             <Landmark size={22} aria-hidden />
           </span>
-          <span className="text-lg font-semibold">{t('brand.title')}</span>
+          <span className="leading-tight">
+            <span className="block text-lg font-semibold">{t('brand.title')}</span>
+            <span className="block text-xs text-brand-200">{t('brand.subtitle')}</span>
+          </span>
         </div>
-        <div className="max-w-md">
-          <h1 className="text-3xl font-semibold leading-tight">{t('login.headline')}</h1>
-          <ol className="mt-8 space-y-4 text-brand-100">
-            {(['s1', 's2', 's3'] as const).map((s) => (
-              <li key={s}>
-                <strong className="text-white">{t(`login.${s}.who`)}</strong> {t(`login.${s}.text`)}
-              </li>
-            ))}
-          </ol>
+
+        <div className="mt-auto max-w-lg">
+          <h1 className="text-[40px] leading-[1.15] font-bold tracking-tight">{t('login.headline')}</h1>
         </div>
-        <span />
+
+        <img src={skyline} alt="" aria-hidden className="pointer-events-none mt-auto w-full max-w-2xl self-center pt-8 opacity-80 select-none" />
       </section>
 
-      <section className="relative flex items-center justify-center px-4 py-12 sm:px-8">
-        <LanguageSwitch className="absolute top-4 right-4" />
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-slate-800">{t('login.title')}</h2>
+      <section className="relative flex items-center justify-center px-4 py-10 sm:px-8 lg:py-6">
+        <LanguageSwitch className="absolute top-5 right-5" />
+        <div className="w-full max-w-[440px] rounded-3xl bg-white p-7 shadow-[0_8px_30px_rgba(20,33,61,0.08)] sm:p-8">
+          <h2 className="text-2xl font-bold text-brand-900">{t('login.title')}</h2>
           <p className="mt-1 text-sm text-slate-500">{t('login.subtitle')}</p>
 
-          <form onSubmit={submit} className="mt-8 space-y-4">
+          <form onSubmit={submit} className="mt-6 space-y-3.5">
             <Field label={t('login.username')}>
               <Input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required autoFocus />
             </Field>
             <Field label={t('login.password')}>
               <Input
+                id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -78,45 +106,28 @@ export function LoginPage() {
               />
             </Field>
             {error && <ErrorNote error={error} />}
-            <Button type="submit" icon={LogIn} loading={busy} className="w-full">
+            <Button type="submit" icon={LogIn} loading={busy} className="!mt-5 h-11 w-full">
               {t('login.submit')}
             </Button>
           </form>
 
           {accounts.length > 0 && (
-            <div className="mt-10 border-t border-slate-200 pt-6">
-              <p className="mb-4 text-sm font-medium text-slate-700">{t('login.demo')}</p>
-              <div className="space-y-4">
-                {GROUPS.map((g) => {
-                  const list = accounts.filter(g.match);
-                  if (!list.length) return null;
-                  return (
-                    <div key={g.title}>
-                      <p className="mb-2 flex items-center gap-1.5 text-xs font-medium tracking-wide text-slate-500 uppercase">
-                        <g.icon size={14} aria-hidden /> {t(g.title)}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {list.map((a) => (
-                          <button
-                            key={a.username}
-                            type="button"
-                            onClick={() => setUsername(a.username)}
-                            title={getLang() === 'en' ? a.fullNameEn : a.fullName}
-                            className={cx(
-                              'rounded-lg border px-3 py-1.5 text-sm transition',
-                              username === a.username
-                                ? 'border-brand-500 bg-brand-50 font-medium text-brand-800'
-                                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
-                            )}
-                          >
-                            {getLang() === 'en' ? a.fullNameEn : a.fullName}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="mt-6 border-t border-slate-100 pt-5">
+              <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">{t('login.demo')}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {GROUPS.slice(0, 2).flatMap((g) => accounts.filter(g.match)).map(chip)}
               </div>
+              {[
+                { label: t('units.departments'), list: accounts.filter((a) => GROUPS[2].match(a) && !isAgency(a)) },
+                { label: t('units.agencies'), list: accounts.filter((a) => GROUPS[2].match(a) && isAgency(a)) },
+              ].map((g) => (
+                <div key={g.label}>
+                  <p className="mt-3 mb-2 flex items-center gap-1.5 text-xs text-slate-400">
+                    <Building2 size={13} aria-hidden /> {g.label}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">{g.list.map(chip)}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>

@@ -66,7 +66,7 @@ function UnitRow({ u }: { u: UnitStats }) {
   return (
     <button
       onClick={() => go(`drejtorite/${u.unitId}`)}
-      className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-lg px-3 py-3 text-left transition hover:bg-slate-50"
+      className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-xl px-3 py-3 text-left transition hover:bg-slate-50"
     >
       <span className="min-w-0">
         <span className="block truncate font-medium text-slate-800">{unit?.short}</span>
@@ -116,42 +116,13 @@ export function OverviewPage() {
         <Spinner />
       ) : (
         <div className="space-y-6">
-          <Card title={t('ov.todayTitle')} subtitle={t('ov.todaySub')} padded={false}>
-            {(() => {
-              const list = insights(s, short);
-              if (!list.length) return <p className="px-6 py-5 text-sm text-slate-600">{t('ov.allGood')}</p>;
-              return (
-                <ul className="divide-y divide-slate-100">
-                  {list.map((i) => (
-                    <li key={i.line} className="flex items-center gap-4 px-6 py-4">
-                      <span className={cx('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', i.tone)}>
-                        <i.icon size={18} aria-hidden />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-medium text-slate-800">{i.line}</span>
-                        {i.sub && <span className="block text-sm text-slate-500">{i.sub}</span>}
-                      </span>
-                      {i.to && (
-                        <button
-                          onClick={() => go(i.to!)}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
-                        >
-                          {t('common.view')} <ArrowRight size={15} aria-hidden />
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              );
-            })()}
-          </Card>
-
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label={t('kpi.total')} value={s.total} icon={FileText} tone="brand" hint={t('kpi.totalHint')} onClick={() => go('regjistri')} />
+            <StatCard label={t('kpi.total')} value={s.total} icon={FileText} tone="navy" hint={t('kpi.totalHint')} onClick={() => go('regjistri')} />
             <StatCard
               label={t('kpi.open')}
               value={s.new + s.inProgress}
               icon={FolderOpen}
+              tone="gold"
               hint={t('kpi.openHint2', { a: s.new, b: s.inProgress })}
             />
             <StatCard
@@ -170,6 +141,36 @@ export function OverviewPage() {
               hint={s.avgDaysToComplete === null ? t('kpi.onTimeHintNoAvg') : t('kpi.onTimeHint2', { n: s.avgDaysToComplete })}
             />
           </div>
+
+          <Card title={t('ov.todayTitle')} subtitle={t('ov.todaySub')} padded={false}>
+            {(() => {
+              const list = insights(s, short);
+              if (!list.length) return <p className="px-6 py-5 text-sm text-slate-600">{t('ov.allGood')}</p>;
+              return (
+                <ul className="space-y-2 px-3 pb-3">
+                  {list.map((i) => (
+                    <li key={i.line} className="flex items-center gap-4 rounded-xl bg-slate-50/80 px-4 py-3">
+                      <span className={cx('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', i.tone)}>
+                        <i.icon size={18} aria-hidden />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium text-slate-800">{i.line}</span>
+                        {i.sub && <span className="block text-sm text-slate-500">{i.sub}</span>}
+                      </span>
+                      {i.to && (
+                        <button
+                          onClick={() => go(i.to!)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-50 px-3.5 py-1.5 text-sm font-medium text-brand-900 transition hover:bg-gold-500"
+                        >
+                          {t('common.view')} <ArrowRight size={15} aria-hidden />
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
+          </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
             {[
