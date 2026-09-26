@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, Bot, CheckCircle2, FileBarChart, Printer, RefreshCw } from 'lucide-react';
+import { AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, CheckCircle2, FileBarChart, Printer, RefreshCw } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { query } from '../api/client';
 import type { Report } from '../api/types';
@@ -121,16 +121,6 @@ export function ReportPage() {
                   {t('rp.period')} <strong>{range(r.period)}</strong> · {t('rp.compared', { p: range(r.previousPeriod) })}
                 </p>
               </div>
-              <span
-                className={cx(
-                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset',
-                  r.generatedBy === 'ai' ? 'bg-violet-50 text-violet-800 ring-violet-200' : 'bg-slate-100 text-slate-700 ring-slate-300',
-                )}
-                title={r.generatedBy === 'ai' ? t('rp.modelTitle', { m: r.model ?? '' }) : t('rp.keyHint')}
-              >
-                <Bot size={14} aria-hidden />
-                {r.generatedBy === 'ai' ? t('rp.byAi') : t('rp.byAuto')}
-              </span>
             </div>
           </header>
 
@@ -237,7 +227,6 @@ export function ReportPage() {
 
           <footer className="border-t border-slate-200 px-8 py-4 text-xs text-slate-500">
             {t('rp.footer', { at: formatDateTime(r.generatedAt) })}
-            {r.generatedBy === 'ai' ? t('rp.footerAi') : '.'}
           </footer>
         </article>
       )}

@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, CornerUpLeft, FileSpreadsheet, Loader2, Send, Sparkles } from 'lucide-react';
+import { Check, CheckCircle2, CornerUpLeft, FileSpreadsheet, Loader2, Send } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { api, query } from '../../api/client';
 import type { RequestItem, Unit, UnitSuggestion } from '../../api/types';
@@ -62,8 +62,8 @@ function UnitChoice({
                   <span className="text-xs text-slate-500">{t('unit.sla', { n: u.slaDays })}</span>
                 </span>
                 {suggested === u.id && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700 ring-1 ring-violet-200">
-                    <Sparkles size={12} aria-hidden /> {t('reg.suggestedBadge')}
+                  <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-200">
+                    {t('reg.suggestedBadge')}
                   </span>
                 )}
               </label>
@@ -166,7 +166,7 @@ export function RegisterPage() {
         <Card
           title={t('reg.card')}
           action={
-            <Button type="button" variant="secondary" icon={Sparkles} onClick={fillExample} className="h-9">
+            <Button type="button" variant="secondary" onClick={fillExample} className="h-9">
               {t('reg.example')}
             </Button>
           }
@@ -202,13 +202,10 @@ export function RegisterPage() {
               </p>
             )}
             {suggestion?.unitId && (
-              <div className="-mt-2 flex flex-wrap items-center gap-3 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3" role="status">
-                <Sparkles size={18} className="shrink-0 text-violet-600" aria-hidden />
+              <div className="-mt-2 flex flex-wrap items-center gap-3 rounded-md border border-brand-200 bg-brand-50 px-4 py-3" role="status">
                 <div className="min-w-0 flex-1 text-sm">
-                  <p className="font-medium text-violet-900">
-                    {t(suggestion.source === 'ai' ? 'reg.suggestAi' : 'reg.suggestHistory', { unit: unitName(suggestion.unitId) })}
-                  </p>
-                  {suggestion.reason && <p className="text-violet-800">{suggestion.reason}</p>}
+                  <p className="font-semibold text-brand-900">{t('reg.suggestion', { unit: unitName(suggestion.unitId) })}</p>
+                  {suggestion.reason && <p className="text-slate-700">{suggestion.reason}</p>}
                 </div>
                 {unitId === suggestion.unitId ? (
                   <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700">

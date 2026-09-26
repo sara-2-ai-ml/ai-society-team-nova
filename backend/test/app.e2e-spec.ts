@@ -323,7 +323,7 @@ describe('App (e2e)', () => {
   describe('reports', () => {
     it('the mayor gets a weekly report for the whole municipality by default', async () => {
       const res = await http().get('/api/reports').set(as(KRYETARI)).expect(200);
-      expect(res.body.scope).toEqual({ unitId: null, name: 'Bashkia' });
+      expect(res.body.scope).toEqual({ unitId: null, name: 'Bashkia Elbasan' });
       expect(res.body.period.to).toBe(today());
       expect(res.body.byUnit).toHaveLength(6);
       expect(res.body.generatedBy).toBe('auto');
@@ -394,7 +394,7 @@ describe('App (e2e)', () => {
 
     it('writes reports in English with English unit names', async () => {
       const res = await http().get('/api/reports').set({ ...as(KRYETARI), ...EN }).expect(200);
-      expect(res.body.scope.name).toBe('Municipality');
+      expect(res.body.scope.name).toBe('Municipality of Elbasan');
       expect(res.body.byUnit.map((u: { name: string }) => u.name)).toContain('Social Services');
       expect(res.body.narrative.summary).toContain('requests were registered in the period');
     });

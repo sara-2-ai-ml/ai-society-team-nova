@@ -118,7 +118,7 @@ export class AssistantService {
     const scoped = viewer.role === Role.Drejtoria;
     const unit = scoped ? this.units.findById(viewer.unitId ?? '') : mentioned;
     const stats = this.requests.stats(viewer, { from: period.from, to: period.to, unitId: unit?.id });
-    const who = unit ? (en ? unit.shortEn : unit.short) : en ? 'Municipality' : 'Bashkia';
+    const who = unit ? (en ? unit.shortEn : unit.short) : en ? 'Municipality of Elbasan' : 'Bashkia Elbasan';
     const name = (id: string) => this.units.shortName(id, lang);
     const suggestions = this.suggestions(viewer, lang);
     const note =

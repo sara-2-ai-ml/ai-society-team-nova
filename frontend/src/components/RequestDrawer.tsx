@@ -114,10 +114,6 @@ export function RequestDrawer({
                 <dd className="text-slate-900">{formatDay(r.completedAt)}</dd>
               </>
             )}
-            <dt className="text-slate-500">{t('drawer.source')}</dt>
-            <dd className="text-slate-900">
-              {r.source === 'dataset' ? t('source.dataset') : r.source === 'excel' ? t('source.excel') : t('source.form')}
-            </dd>
           </dl>
 
           <section>

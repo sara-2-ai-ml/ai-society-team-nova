@@ -10,7 +10,17 @@ const WEEKDAYS = {
   en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
 };
 
+const WEEKDAYS_LONG = {
+  sq: ['E diel', 'E hënë', 'E martë', 'E mërkurë', 'E enjte', 'E premte', 'E shtunë'],
+  en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+};
+
 export const monthName = (index: number) => MONTHS[getLang()][index];
+
+/** "E shtunë, 26 Shtator 2026" / "Saturday, 26 September 2026" */
+export function formatLongDate(d: Date = new Date()): string {
+  return `${WEEKDAYS_LONG[getLang()][d.getDay()]}, ${d.getDate()} ${monthName(d.getMonth())} ${d.getFullYear()}`;
+}
 /** Monday first. */
 export const weekdayNames = () => WEEKDAYS[getLang()];
 

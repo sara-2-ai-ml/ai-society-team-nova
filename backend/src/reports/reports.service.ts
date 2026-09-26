@@ -76,7 +76,7 @@ export class ReportsService {
       .map((r) => ({ protocolNo: r.protocolNo, subject: r.subject, unit: name(r.unitId), daysLate: -r.daysLeft! }));
 
     return {
-      scope: { unitId: unitId ?? null, name: unitId ? this.units.fullName(unitId, lang) : lang === 'en' ? 'Municipality' : 'Bashkia' },
+      scope: { unitId: unitId ?? null, name: unitId ? this.units.fullName(unitId, lang) : lang === 'en' ? 'Municipality of Elbasan' : 'Bashkia Elbasan' },
       period: { from, to },
       previousPeriod: previous,
       metrics: {

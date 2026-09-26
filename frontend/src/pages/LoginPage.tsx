@@ -55,7 +55,7 @@ export function LoginPage() {
             ))}
           </ol>
         </div>
-        <p className="text-sm text-brand-200">{t('login.demoFooter')}</p>
+        <span />
       </section>
 
       <section className="relative flex items-center justify-center px-4 py-12 sm:px-8">
@@ -85,8 +85,7 @@ export function LoginPage() {
 
           {accounts.length > 0 && (
             <div className="mt-10 border-t border-slate-200 pt-6">
-              <p className="text-sm font-medium text-slate-700">{t('login.demo')}</p>
-              <p className="mb-4 text-xs text-slate-500">{t('login.demoHint')}</p>
+              <p className="mb-4 text-sm font-medium text-slate-700">{t('login.demo')}</p>
               <div className="space-y-4">
                 {GROUPS.map((g) => {
                   const list = accounts.filter(g.match);
@@ -110,11 +109,7 @@ export function LoginPage() {
                                 : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
                             )}
                           >
-                            {getLang() === 'en'
-                              ? a.fullNameEn.replace(/ (Department|Agency)$/, '')
-                              : a.role === 'DREJTORIA'
-                                ? a.fullName.replace(/^(Drejtoria|Agjencia) e /, '')
-                                : a.fullName}
+                            {getLang() === 'en' ? a.fullNameEn : a.fullName}
                           </button>
                         ))}
                       </div>

@@ -1,7 +1,7 @@
-import { Bot, Database, SendHorizontal, Sparkles } from 'lucide-react';
+import { Landmark, MessageSquareText, SendHorizontal } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { api } from '../api/client';
-import type { AiStatus, AssistantAnswer } from '../api/types';
+import type { AssistantAnswer } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { Card, PageHeader, cx } from '../components/ui';
 import { t } from '../i18n';
@@ -18,7 +18,6 @@ export function AssistantPage() {
   const { user } = useAuth();
   const { unitName } = useApp();
   const initial = useApi<string[]>('/assistant/suggestions');
-  const status = useApi<AiStatus>('/ai/status');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
@@ -62,13 +61,12 @@ export function AssistantPage() {
         title={t('as.title')}
         subtitle={t('as.subtitle', { scope })}
       />
-      {status.data && <AiStatusBar status={status.data} />}
       <Card padded={false} className="flex min-h-[560px] flex-col">
         <div className="flex-1 space-y-4 overflow-y-auto p-5" aria-live="polite">
           {messages.length === 0 && (
             <div className="flex flex-col items-center py-10 text-center">
               <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">
-                <Sparkles size={22} aria-hidden />
+                <MessageSquareText size={22} aria-hidden />
               </span>
               <p className="font-medium text-slate-800">{t('as.emptyTitle')}</p>
               <p className="mt-1 text-sm text-slate-500">{t('as.emptyText')}</p>
@@ -78,7 +76,7 @@ export function AssistantPage() {
             <div key={i} className={cx('flex gap-3', m.from === 'user' && 'justify-end')}>
               {m.from === 'assistant' && (
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-700 text-white" aria-hidden>
-                  <Bot size={16} />
+                  <Landmark size={15} />
                 </span>
               )}
               <div
@@ -142,23 +140,3 @@ export function AssistantPage() {
   );
 }
 
-/** Whether answers come from the AI, and where the data comes from. */
-export function AiStatusBar({ status }: { status: AiStatus }) {
-  const on = status.pythonReachable && status.configured;
-  const label = on ? t('ai.on', { model: status.model ?? '' }) : status.pythonReachable ? t('ai.noKey') : t('ai.noPython');
-  return (
-    <div className="mb-4 flex flex-wrap gap-2 text-xs">
-      <span
-        className={cx(
-          'inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ring-1 ring-inset',
-          on ? 'bg-violet-50 text-violet-800 ring-violet-200' : 'bg-amber-50 text-amber-800 ring-amber-200',
-        )}
-      >
-        <Sparkles size={13} aria-hidden /> {label}
-      </span>
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 ring-1 ring-inset ring-slate-200">
-        <Database size={13} aria-hidden /> {status.dataSource === 'dataset' ? t('ai.dataReal') : t('ai.dataMock')}
-      </span>
-    </div>
-  );
-}
