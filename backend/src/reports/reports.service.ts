@@ -89,6 +89,7 @@ export class ReportsService {
         returned: stats.returned,
         overdue: overdue.length,
         onTimeRate: stats.onTimeRate,
+        onTimeDone: items.filter((r) => r.status === 'done' && r.completedAt! <= r.deadline).length,
         previousOnTimeRate: before.onTimeRate,
         avgDaysToComplete: stats.avgDaysToComplete,
       },

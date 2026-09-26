@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DIRECTORATE_BY_UNIT, PythonApiError, PythonApiService } from '../analytics/python-api.service';
+import { ConversationDetail, ConversationSummary, DIRECTORATE_BY_UNIT, PythonApiError, PythonApiService } from '../analytics/python-api.service';
 import { addDays, today } from '../common/dates';
 import type { Lang } from '../common/lang';
 import { normalize } from '../common/text';
@@ -17,6 +17,7 @@ export interface AssistantAnswer {
   source: 'ai' | 'offline';
   /** Data tools the AI used to answer. */
   tools?: string[];
+  conversationId?: string;
 }
 
 type PeriodId = 'today' | 'yesterday' | 'week' | 'month' | 'all';
@@ -62,18 +63,20 @@ export class AssistantService {
    * (DSHP and DI); otherwise answers offline. A directorate user's question only ever
    * reaches the agent with that directorate's data.
    */
-  async ask(viewer: JwtPayload, question: string, lang: Lang): Promise<AssistantAnswer> {
+  async ask(viewer: JwtPayload, question: string, lang: Lang, conversationId?: string): Promise<AssistantAnswer> {
     const scoped = viewer.role === Role.Drejtoria;
     const directorate = scoped ? DIRECTORATE_BY_UNIT[viewer.unitId ?? ''] : undefined;
     if (!scoped || directorate) {
       try {
-        const reply = await this.python.ask(question, `nova-${viewer.username}`, lang, directorate);
+        const sessionId = conversationId?.trim() || `conversation-${viewer.username}-${Date.now()}`;
+        const reply = await this.python.ask(question, sessionId, viewer.username, lang, directorate);
         return {
           answer: reply.answer,
           facts: [],
           suggestions: this.suggestions(viewer, lang),
           source: 'ai',
           tools: [...new Set(reply.tools_used.map((t) => t.tool))],
+          conversationId: sessionId,
         };
       } catch (error) {
         // 503 = no OPENAI_API_KEY; null = Python not running. Both are normal: answer offline.
@@ -83,6 +86,18 @@ export class AssistantService {
       }
     }
     return this.answer(viewer, question, lang);
+  }
+
+  conversations(viewer: JwtPayload): Promise<ConversationSummary[]> {
+    return this.python.conversations(viewer.username);
+  }
+
+  conversation(viewer: JwtPayload, conversationId: string): Promise<ConversationDetail> {
+    return this.python.conversation(viewer.username, conversationId);
+  }
+
+  deleteConversation(viewer: JwtPayload, conversationId: string): Promise<void> {
+    return this.python.deleteConversation(viewer.username, conversationId);
   }
 
   suggestions(viewer: JwtPayload, lang: Lang): string[] {

@@ -14,9 +14,14 @@ from backend.services.agent_service import (
 )
 from backend.services.memory_service import (
     clear_session_memory,
+    delete_user_conversation,
+    ensure_conversation,
     get_conversation_history,
+    get_user_conversation,
     initialize_memory_db,
+    list_user_conversations,
     save_message,
+    touch_conversation,
 )
 
 
@@ -166,6 +171,30 @@ def test_memory_lifecycle_and_session_isolation(tmp_path):
     assert len(get_conversation_history("session-b", db_path=db_path)) == 1
 
 
+def test_persistent_conversations_are_owned_by_user(tmp_path):
+    db_path = tmp_path / "persistent.db"
+    ensure_conversation("conversation-1", "operator", "How many requests?", db_path)
+    save_message("conversation-1", "user", "How many requests?", db_path)
+    save_message("conversation-1", "assistant", "There are 556.", db_path)
+    touch_conversation("conversation-1", db_path)
+
+    summaries = list_user_conversations("operator", db_path)
+    assert summaries[0]["id"] == "conversation-1"
+    assert summaries[0]["title"] == "How many requests?"
+    assert list_user_conversations("another-user", db_path) == []
+
+    detail = get_user_conversation("conversation-1", "operator", db_path)
+    assert [message["role"] for message in detail["messages"]] == ["user", "assistant"]
+    with pytest.raises(LookupError):
+        get_user_conversation("conversation-1", "another-user", db_path)
+    with pytest.raises(PermissionError):
+        ensure_conversation("conversation-1", "another-user", "Blocked", db_path)
+
+    delete_user_conversation("conversation-1", "operator", db_path)
+    assert list_user_conversations("operator", db_path) == []
+    assert get_conversation_history("conversation-1", db_path=db_path) == []
+
+
 def test_ask_assistant_uses_history_and_records_tool_use(tmp_path, datasets):
     db_path = tmp_path / "agent.db"
     save_message("follow-up", "user", "Why is Lagjja nr. 3 high priority?", db_path)
@@ -240,7 +269,7 @@ def test_agent_stops_at_maximum_iterations(tmp_path, datasets):
 
 
 def test_agent_api_returns_mocked_response(monkeypatch):
-    def fake_ask(question, session_id):
+    def fake_ask(question, session_id, **_kwargs):
         return {
             "session_id": session_id,
             "answer": f"Verified answer for: {question}",

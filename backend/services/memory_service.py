@@ -15,6 +15,23 @@ def initialize_memory_db(db_path: str | Path = DEFAULT_MEMORY_DB_PATH) -> Path:
     with sqlite3.connect(path) as connection:
         connection.execute(
             """
+            CREATE TABLE IF NOT EXISTS conversations (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_conversations_user
+            ON conversations (user_id, updated_at DESC)
+            """
+        )
+        connection.execute(
+            """
             CREATE TABLE IF NOT EXISTS conversation_memory (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT NOT NULL,
@@ -31,6 +48,99 @@ def initialize_memory_db(db_path: str | Path = DEFAULT_MEMORY_DB_PATH) -> Path:
             """
         )
     return path
+
+
+def ensure_conversation(
+    conversation_id: str,
+    user_id: str,
+    title: str,
+    db_path: str | Path = DEFAULT_MEMORY_DB_PATH,
+) -> None:
+    """Create a user-owned conversation or verify ownership of an existing one."""
+    path = initialize_memory_db(db_path)
+    with sqlite3.connect(path) as connection:
+        row = connection.execute(
+            "SELECT user_id FROM conversations WHERE id = ?", (conversation_id,)
+        ).fetchone()
+        if row and row[0] != user_id:
+            raise PermissionError("Conversation does not belong to this user.")
+        if not row:
+            clean_title = " ".join(title.split())[:80] or "New conversation"
+            connection.execute(
+                "INSERT INTO conversations (id, user_id, title) VALUES (?, ?, ?)",
+                (conversation_id, user_id, clean_title),
+            )
+
+
+def touch_conversation(
+    conversation_id: str, db_path: str | Path = DEFAULT_MEMORY_DB_PATH
+) -> None:
+    path = initialize_memory_db(db_path)
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (conversation_id,),
+        )
+
+
+def list_user_conversations(
+    user_id: str, db_path: str | Path = DEFAULT_MEMORY_DB_PATH
+) -> list[dict[str, str]]:
+    path = initialize_memory_db(db_path)
+    with sqlite3.connect(path) as connection:
+        rows = connection.execute(
+            """
+            SELECT id, title, created_at, updated_at
+            FROM conversations
+            WHERE user_id = ?
+            ORDER BY updated_at DESC, id DESC
+            """,
+            (user_id,),
+        ).fetchall()
+    return [
+        {"id": row[0], "title": row[1], "created_at": row[2], "updated_at": row[3]}
+        for row in rows
+    ]
+
+
+def get_user_conversation(
+    conversation_id: str,
+    user_id: str,
+    db_path: str | Path = DEFAULT_MEMORY_DB_PATH,
+) -> dict:
+    path = initialize_memory_db(db_path)
+    with sqlite3.connect(path) as connection:
+        row = connection.execute(
+            "SELECT id, title, created_at, updated_at FROM conversations WHERE id = ? AND user_id = ?",
+            (conversation_id, user_id),
+        ).fetchone()
+    if not row:
+        raise LookupError("Conversation not found.")
+    return {
+        "id": row[0],
+        "title": row[1],
+        "created_at": row[2],
+        "updated_at": row[3],
+        "messages": get_conversation_history(conversation_id, limit=500, db_path=path),
+    }
+
+
+def delete_user_conversation(
+    conversation_id: str,
+    user_id: str,
+    db_path: str | Path = DEFAULT_MEMORY_DB_PATH,
+) -> None:
+    path = initialize_memory_db(db_path)
+    with sqlite3.connect(path) as connection:
+        deleted = connection.execute(
+            "DELETE FROM conversations WHERE id = ? AND user_id = ?",
+            (conversation_id, user_id),
+        ).rowcount
+        if not deleted:
+            raise LookupError("Conversation not found.")
+        connection.execute(
+            "DELETE FROM conversation_memory WHERE session_id = ?", (conversation_id,)
+        )
 
 
 def save_message(

@@ -1,7 +1,7 @@
-import { Landmark, MessageSquareText, SendHorizontal } from 'lucide-react';
+import { Landmark, MessageSquarePlus, MessageSquareText, SendHorizontal, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { api } from '../api/client';
-import type { AssistantAnswer } from '../api/types';
+import type { AssistantAnswer, ConversationDetail, ConversationSummary } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { Card, PageHeader, cx } from '../components/ui';
 import { t } from '../i18n';
@@ -22,11 +22,22 @@ export function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+
+  const loadConversations = () =>
+    api<ConversationSummary[]>('/assistant/conversations')
+      .then(setConversations)
+      .catch(() => setConversations([]));
 
   useEffect(() => {
     if (initial.data) setSuggestions(initial.data);
   }, [initial.data]);
+  useEffect(() => {
+    loadConversations();
+  }, []);
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages, busy]);
@@ -34,18 +45,53 @@ export function AssistantPage() {
   const ask = async (question: string) => {
     const q = question.trim();
     if (!q || busy) return;
+    const conversationId = activeConversation ?? crypto.randomUUID();
+    setActiveConversation(conversationId);
     setText('');
     setMessages((m) => [...m, { from: 'user', text: q }]);
     setBusy(true);
     try {
-      const res = await api<AssistantAnswer>('/assistant/ask', { method: 'POST', json: { question: q } });
+      const res = await api<AssistantAnswer>('/assistant/ask', {
+        method: 'POST',
+        json: { question: q, conversationId },
+      });
       setMessages((m) => [...m, { from: 'assistant', text: res.answer, facts: res.facts }]);
       setSuggestions(res.suggestions);
+      loadConversations();
     } catch (e) {
       setMessages((m) => [...m, { from: 'assistant', text: (e as Error).message }]);
     } finally {
       setBusy(false);
     }
+  };
+
+  const newConversation = () => {
+    setActiveConversation(null);
+    setMessages([]);
+    setText('');
+  };
+
+  const openConversation = async (id: string) => {
+    if (busy || id === activeConversation) return;
+    setHistoryLoading(true);
+    try {
+      const conversation = await api<ConversationDetail>(`/assistant/conversations/${encodeURIComponent(id)}`);
+      setActiveConversation(id);
+      setMessages(
+        conversation.messages.map((message) => ({
+          from: message.role === 'user' ? 'user' : 'assistant',
+          text: message.content,
+        })),
+      );
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const deleteConversation = async (id: string) => {
+    await api<void>(`/assistant/conversations/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (activeConversation === id) newConversation();
+    loadConversations();
   };
 
   const submit = (e: FormEvent) => {
@@ -61,7 +107,54 @@ export function AssistantPage() {
         title={t('as.title')}
         subtitle={t('as.subtitle', { scope })}
       />
-      <Card padded={false} className="flex min-h-[560px] flex-col">
+      <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-3">
+            <button
+              type="button"
+              onClick={newConversation}
+              className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 text-sm font-semibold text-white hover:bg-brand-800"
+            >
+              <MessageSquarePlus size={17} aria-hidden /> {t('as.newConversation')}
+            </button>
+          </div>
+          <div className="max-h-[520px] overflow-y-auto p-2">
+            <p className="px-2 py-2 text-[11px] font-semibold tracking-wide text-slate-500 uppercase">{t('as.history')}</p>
+            {!conversations.length && <p className="px-2 py-4 text-sm text-slate-500">{t('as.noHistory')}</p>}
+            <div className="space-y-1">
+              {conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  className={cx(
+                    'group flex items-center rounded-lg transition',
+                    activeConversation === conversation.id ? 'bg-brand-50' : 'hover:bg-slate-50',
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => openConversation(conversation.id)}
+                    className="min-w-0 flex-1 px-3 py-2.5 text-left"
+                  >
+                    <span className="block truncate text-sm font-medium text-slate-800">{conversation.title}</span>
+                    <span className="mt-0.5 block text-[11px] text-slate-500">
+                      {new Date(`${conversation.updated_at}Z`).toLocaleDateString()}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteConversation(conversation.id)}
+                    className="mr-2 rounded-md p-1.5 text-slate-400 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 focus:opacity-100"
+                    aria-label={t('as.deleteConversation')}
+                  >
+                    <Trash2 size={14} aria-hidden />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+      <Card padded={false} className="flex min-h-[560px] min-w-0 flex-col">
         <div className="flex-1 space-y-4 overflow-y-auto p-5" aria-live="polite">
           {messages.length === 0 && (
             <div className="flex flex-col items-center py-10 text-center">
@@ -99,7 +192,7 @@ export function AssistantPage() {
               </div>
             </div>
           ))}
-          {busy && <p className="pl-11 text-sm text-slate-500">{t('as.thinking')}</p>}
+          {(busy || historyLoading) && <p className="pl-11 text-sm text-slate-500">{historyLoading ? t('as.loadingHistory') : t('as.thinking')}</p>}
           <div ref={end} />
         </div>
 
@@ -136,6 +229,7 @@ export function AssistantPage() {
           </form>
         </div>
       </Card>
+      </div>
     </>
   );
 }

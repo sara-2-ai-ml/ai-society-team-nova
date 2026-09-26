@@ -38,6 +38,8 @@ export interface ReportFacts {
     /** Open and past their deadline today, whenever they were registered. */
     overdue: number;
     onTimeRate: number | null;
+    /** Completed requests in the report period that met their deadline. */
+    onTimeDone: number;
     previousOnTimeRate: number | null;
     avgDaysToComplete: number | null;
   };

@@ -147,6 +147,8 @@ class AskAgentRequest(BaseModel):
     directorate: str | None = None
     # The website's language ("sq" or "en"), so answers match what the user sees.
     language: str | None = None
+    # Set by the authenticated NestJS layer; owns persistent conversation history.
+    user_id: str | None = None
 
 
 class AgentToolUse(BaseModel):

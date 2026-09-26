@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, CornerUpLeft, FileSpreadsheet, Loader2, Send } from 'lucide-react';
+import { ArrowRight, Building2, Check, CheckCircle2, CornerUpLeft, FileSpreadsheet, Loader2, Send } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { api, query } from '../../api/client';
 import type { RequestItem, Unit, UnitSuggestion } from '../../api/types';
@@ -202,20 +202,53 @@ export function RegisterPage() {
               </p>
             )}
             {suggestion?.unitId && (
-              <div className="-mt-2 flex flex-wrap items-center gap-3 rounded-md border border-brand-200 bg-brand-50 px-4 py-3" role="status">
-                <div className="min-w-0 flex-1 text-sm">
-                  <p className="font-semibold text-brand-900">{t('reg.suggestion', { unit: unitName(suggestion.unitId) })}</p>
-                  {suggestion.reason && <p className="text-slate-700">{suggestion.reason}</p>}
-                </div>
-                {unitId === suggestion.unitId ? (
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700">
-                    <Check size={16} aria-hidden /> {t('reg.suggestionUsed')}
-                  </span>
-                ) : (
-                  <Button type="button" variant="secondary" className="h-9" onClick={() => setUnitId(suggestion.unitId!)}>
-                    {t('reg.useSuggestion')}
-                  </Button>
+              <div
+                className={cx(
+                  '-mt-2 overflow-hidden rounded-xl border bg-white shadow-sm transition-colors',
+                  unitId === suggestion.unitId ? 'border-emerald-300' : 'border-slate-200',
                 )}
+                role="status"
+              >
+                <div className="flex">
+                  <div className={cx('w-1 shrink-0', unitId === suggestion.unitId ? 'bg-emerald-500' : 'bg-brand-700')} />
+                  <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:flex-row sm:items-center">
+                    <div
+                      className={cx(
+                        'flex size-11 shrink-0 items-center justify-center rounded-xl',
+                        unitId === suggestion.unitId ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-brand-800',
+                      )}
+                    >
+                      {unitId === suggestion.unitId ? <Check size={21} strokeWidth={2.2} aria-hidden /> : <Building2 size={21} strokeWidth={1.8} aria-hidden />}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
+                          {t('reg.routeRecommendation')}
+                        </span>
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                          {t(suggestion.source === 'ai' ? 'reg.sourceAi' : 'reg.sourceHistory')}
+                        </span>
+                      </div>
+                      <p className="text-base font-semibold text-slate-950">{unitName(suggestion.unitId)}</p>
+                      {suggestion.reason && <p className="mt-1 text-sm leading-5 text-slate-600">{suggestion.reason}</p>}
+                    </div>
+
+                    {unitId === suggestion.unitId ? (
+                      <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 sm:self-center">
+                        <Check size={16} aria-hidden /> {t('reg.suggestionUsed')}
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="inline-flex h-10 shrink-0 items-center justify-center gap-2 self-start rounded-lg bg-brand-800 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 sm:self-center"
+                        onClick={() => setUnitId(suggestion.unitId!)}
+                      >
+                        {t('reg.useSuggestion')} <ArrowRight size={16} aria-hidden />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             <div>

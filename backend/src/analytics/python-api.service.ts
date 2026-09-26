@@ -36,6 +36,17 @@ export interface AgentReply {
   tools_used: { tool: string; input: Record<string, unknown> }[];
 }
 
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  messages: { role: 'user' | 'assistant'; content: string; created_at: string }[];
+}
+
 export class PythonApiError extends Error {
   constructor(
     message: string,
@@ -66,10 +77,25 @@ export class PythonApiService {
   }
 
   /** Grounded agent answer. `directorate` limits it to one directorate's data. */
-  ask(question: string, sessionId: string, lang: Lang, directorate?: string): Promise<AgentReply> {
+  ask(question: string, sessionId: string, userId: string, lang: Lang, directorate?: string): Promise<AgentReply> {
     return this.call('/ask', {
-      body: { question, session_id: sessionId, directorate: directorate ?? null, language: lang },
+      body: { question, session_id: sessionId, user_id: userId, directorate: directorate ?? null, language: lang },
       timeoutMs: 120_000,
+    });
+  }
+
+  conversations(userId: string): Promise<ConversationSummary[]> {
+    return this.call(`/conversations?user_id=${encodeURIComponent(userId)}`, { timeoutMs: 5_000 });
+  }
+
+  conversation(userId: string, conversationId: string): Promise<ConversationDetail> {
+    return this.call(`/conversations/${encodeURIComponent(conversationId)}?user_id=${encodeURIComponent(userId)}`, { timeoutMs: 5_000 });
+  }
+
+  deleteConversation(userId: string, conversationId: string): Promise<void> {
+    return this.call(`/conversations/${encodeURIComponent(conversationId)}?user_id=${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      timeoutMs: 5_000,
     });
   }
 
@@ -82,11 +108,11 @@ export class PythonApiService {
     return this.call('/report-narrative', { body: { facts, language: lang }, timeoutMs: 120_000 });
   }
 
-  private async call<T>(path: string, { body, timeoutMs }: { body?: unknown; timeoutMs: number }): Promise<T> {
+  private async call<T>(path: string, { body, timeoutMs, method }: { body?: unknown; timeoutMs: number; method?: string }): Promise<T> {
     let res: Response;
     try {
       res = await fetch(`${this.baseUrl}${path}`, {
-        method: body === undefined ? 'GET' : 'POST',
+        method: method ?? (body === undefined ? 'GET' : 'POST'),
         headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
         body: body === undefined ? undefined : JSON.stringify(body),
         signal: AbortSignal.timeout(timeoutMs),
@@ -98,6 +124,7 @@ export class PythonApiService {
       const detail = await res.json().then((b: { detail?: unknown }) => b.detail, () => undefined);
       throw new PythonApiError(`Python ${path} failed (${res.status}): ${typeof detail === 'string' ? detail : res.statusText}`, res.status);
     }
+    if (res.status === 204) return undefined as T;
     return res.json() as Promise<T>;
   }
 
