@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+/* Institutional palette: navy for the municipality, calm neutrals, colour only where it means something. */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  --color-brand-50: #eef4fa;
+  --color-brand-100: #d9e6f3;
+  --color-brand-200: #b3cce6;
+  --color-brand-300: #82a9cf;
+  --color-brand-500: #2f5f8f;
+  --color-brand-600: #1f4a75;
+  --color-brand-700: #183b5e;
+  --color-brand-800: #132f4b;
+  --color-brand-900: #0f243a;
+
+  --color-page: #f4f6f9;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-page font-sans text-slate-800 antialiased;
+}
+
+/* Keyboard focus is always visible. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Printing a report: only the document, on white. */
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .print-plain {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
