@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: sara-ai-society-team-nova-python
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+
+  - type: web
+    name: sara-ai-society-team-nova-backend
+    runtime: node
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/auth/demo-accounts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: SEED_PASSWORD
+        sync: false
+      - key: PYTHON_API_URL
+        value: https://sara-ai-society-team-nova-python.onrender.com/api
