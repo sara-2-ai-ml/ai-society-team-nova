@@ -25,3 +25,9 @@ __pycache__/
 .venv/
 venv/
 *.db
+
+# Local Codex/build artifacts
+.codex-finalizer/
+.deckbuild/
+output/
+tmp/
