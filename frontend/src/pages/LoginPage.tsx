@@ -13,13 +13,61 @@ const GROUPS: { title: Key; icon: typeof UserRound; match: (a: DemoAccount) => b
   { title: 'login.groupUnits', icon: Building2, match: (a) => a.role === 'DREJTORIA' },
 ];
 
+// Keep the demo chooser visible immediately, even while a free Render instance is waking up.
+const DEMO_ACCOUNTS: DemoAccount[] = [
+  { username: 'operator', fullName: 'Operatori i Protokollit', fullNameEn: 'Protocol Operator', role: 'OPERATOR', unitId: null },
+  { username: 'kryetari', fullName: 'Kryetari i Bashkisë', fullNameEn: 'Mayor', role: 'KRYETARI', unitId: null },
+  {
+    username: 'drejtoria.sociale',
+    fullName: 'Drejtoria e Shërbimeve Sociale',
+    fullNameEn: 'Social Services Department',
+    role: 'DREJTORIA',
+    unitId: 'sociale',
+  },
+  {
+    username: 'drejtoria.publike',
+    fullName: 'Drejtoria e Shërbimeve Publike',
+    fullNameEn: 'Public Services Department',
+    role: 'DREJTORIA',
+    unitId: 'publike',
+  },
+  {
+    username: 'drejtoria.infrastruktura',
+    fullName: 'Drejtoria e Infrastrukturës',
+    fullNameEn: 'Infrastructure Department',
+    role: 'DREJTORIA',
+    unitId: 'infrastruktura',
+  },
+  {
+    username: 'drejtoria.urbanistika',
+    fullName: 'Drejtoria e Urbanistikës',
+    fullNameEn: 'Urban Planning Department',
+    role: 'DREJTORIA',
+    unitId: 'urbanistika',
+  },
+  {
+    username: 'agjencia.parqet',
+    fullName: 'Agjencia e Parqeve dhe Rekreacionit',
+    fullNameEn: 'Parks and Recreation Agency',
+    role: 'DREJTORIA',
+    unitId: 'parqet',
+  },
+  {
+    username: 'agjencia.transporti',
+    fullName: 'Agjencia e Transportit Publik',
+    fullNameEn: 'Public Transport Agency',
+    role: 'DREJTORIA',
+    unitId: 'transporti',
+  },
+];
+
 export function LoginPage() {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [accounts, setAccounts] = useState<DemoAccount[]>([]);
+  const [accounts, setAccounts] = useState<DemoAccount[]>(DEMO_ACCOUNTS);
 
   useEffect(() => {
     let cancelled = false;
