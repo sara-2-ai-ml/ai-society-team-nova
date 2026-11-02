@@ -1,6 +1,10 @@
 import { getLang, t } from '../i18n';
 
-export const API_URL = import.meta.env.VITE_API_URL || '/api';
+// Keep accidental whitespace or pasted instructions out of the request URL.
+export const API_URL = String(import.meta.env.VITE_API_URL || '/api')
+  .trim()
+  .split(/\s+/)[0]
+  .replace(/\/+$/, '');
 
 const TOKEN_KEY = 'nova-token';
 
