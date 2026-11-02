@@ -22,7 +22,26 @@ export function LoginPage() {
   const [accounts, setAccounts] = useState<DemoAccount[]>([]);
 
   useEffect(() => {
-    api<DemoAccount[]>('/auth/demo-accounts').then(setAccounts).catch(() => setAccounts([]));
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const loadAccounts = () => {
+      api<DemoAccount[]>('/auth/demo-accounts')
+        .then((items) => {
+          if (!cancelled) setAccounts(items);
+        })
+        .catch(() => {
+          // Free Render services can take about a minute to wake up. Keep retrying so
+          // quick sign-in appears without requiring the user to refresh the page.
+          if (!cancelled) retryTimer = setTimeout(loadAccounts, 5_000);
+        });
+    };
+
+    loadAccounts();
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
   }, []);
 
   const submit = async (e: FormEvent) => {
